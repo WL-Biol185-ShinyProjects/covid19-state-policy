@@ -2,6 +2,3 @@
 A comprehensive evaluation of the effectiveness of state policy on Covid-19 outcomes.
 <<<<<<< HEAD
 
-This is my update 10/2/2023!
-
-hello everyone
