@@ -1,9 +1,9 @@
 library(lubridate)
 library(tidyverse)
 
-time_series_list <- list.files('~/Project/covid19-state-policy/Data/csse_covid_19_daily_reports_us', full.names = TRUE)
+time_series_list <- list.files('Data/csse_covid_19_daily_reports_us', full.names = TRUE)
 
-date_list <- list.files('~/Project/covid19-state-policy/Data/csse_covid_19_daily_reports_us')
+date_list <- list.files('Data/csse_covid_19_daily_reports_us')
 
 
 df <- lapply(time_series_list, function(file){
