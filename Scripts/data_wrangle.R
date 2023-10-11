@@ -2,7 +2,7 @@ library(lubridate)
 library(tidyverse)
 
 
-time_series_list <- list.files('../Data/csse_covid_19_daily_reports_us', full.names = TRUE)
+time_series_list <- list.files('Data/csse_covid_19_daily_reports_us', full.names = TRUE)
 
 
 df <- lapply(time_series_list, function(file){
@@ -24,3 +24,6 @@ binded_df <- filter(binded_df, !(binded_df$Province_State %in% c("American Samoa
 
 #sort from least recent to most recent 
 sorted_df <- binded_df %>% arrange(mdy(binded_df$Date))
+
+#save cleaned data
+write.csv(sorted_df, file = "Data/csse_covid_19_daily_reports_us_CLEAN.csv")
