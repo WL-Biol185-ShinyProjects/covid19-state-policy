@@ -7,7 +7,7 @@ time_series_list <- list.files('Data/csse_covid_19_daily_reports_us', full.names
 
 df <- lapply(time_series_list, function(file){
   table <- read.csv(file)[,1:18]
-  table$Date <- substring(file, 90,99) 
+  table$Date <- substring(file, 37,46) 
   
   table
 })
