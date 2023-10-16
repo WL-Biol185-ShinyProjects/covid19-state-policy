@@ -9,7 +9,7 @@ time_series_list <- list.files('Data/csse_covid_19_daily_reports_us', full.names
 df <- lapply(time_series_list, function(file){
   table <- read.csv(file)[,1:18]
   table$Date <- substring(file, 37,46)
-  table <- mutate(table, Converted_Date = parse_date_time(Date, orders = c("mdy", "dmy", "ymd")))
+  table$Converted_Date <- as_date(table$Date, format = "%m-%d-%Y")
 
   table
 })
@@ -41,8 +41,10 @@ StringencyIndex_clean <- StringencyIndex %>%
   filter(!is.na(RegionName)) %>%
   pivot_longer(cols= c(colnames(StringencyIndex[8:1162])),
                     names_to='Date',
-                    values_to='StringencyIndex') %>%
-  mutate(Converted_Date = parse_date_time(Date, orders = c("mdy", "dmy", "ymd")))
+                    values_to='StringencyIndex')
+
+  
+StringencyIndex_clean$Converted_Date <- as_date(StringencyIndex_clean$Date, format = "%d%b%Y")
 
 StringencyIndex_clean$RegionName[StringencyIndex_clean$RegionName == "Washington DC"] <- "District of Columbia"
 
