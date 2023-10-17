@@ -33,7 +33,7 @@ write.csv(sorted_df, file = "Data/csse_covid_19_daily_reports_us_CLEAN.csv")
 
 
 
-#Joining in time series data
+#Joining in time series data - Stringency Index
 StringencyIndex <- read_excel('Data/OxCGRT_timeseries_us_subnational_indices.xlsx', 
                               sheet = "StringencyIndex")
 
@@ -48,7 +48,7 @@ StringencyIndex_clean$Converted_Date <- as_date(StringencyIndex_clean$Date, form
 
 StringencyIndex_clean$RegionName[StringencyIndex_clean$RegionName == "Washington DC"] <- "District of Columbia"
 
-testMerge <- left_join(sorted_df, 
+tidyData <- left_join(sorted_df, 
                        StringencyIndex_clean, 
                        by = c("Province_State" = "RegionName", "Converted_Date"))
 
