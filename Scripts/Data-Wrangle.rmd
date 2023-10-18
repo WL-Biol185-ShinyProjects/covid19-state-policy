@@ -1,0 +1,105 @@
+---
+title: "Data-Wrangle.rmd"
+author: "Sanil Partha"
+date: "10/17/2023"
+output: html_document
+---
+```{r}
+library(lubridate)
+library(tidyverse)
+library(readxl)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Creating a list of file names(which include the date of each file's data)
+```{r}
+time_series_list <- list.files('Data/csse_covid_19_daily_reports_us', full.names = TRUE)
+
+```
+Reading in the first 18 columns (gets rid of 3 extra columns that data was not collected for in 2023) of each file in the list,
+
+adding the date from the file name to a new "Date" column in each,
+
+and adding a "Converted Date" column in the m-d-y format
+```{r}
+df <- lapply(time_series_list, function(file){
+  table <- read.csv(file)[,1:18]
+  table$Date <- substring(file, 37,46)
+  table$Converted_Date <- as_date(table$Date, format = "%m-%d-%Y")
+
+  table
+})
+
+head(df)
+```
+Creates a new dataframe with all days' data stacked on top of each other using row bind and
+
+Filters out territories and cruises that are not US states, and have no accompanying policy data
+
+```{r}
+binded_df <- do.call(rbind, df)
+head(binded_df)
+```
+
+```{r}
+#binded_df <- filter(binded_df, !(binded_df$Province_State %in% c("American Samoa",
+ #                                                            "Diamond Princess",
+  #                                                           "Grand Princess",
+   #                                                          "Guam",
+    #                                                         "Northern Mariana Islands",
+     #                                                        "Puerto Rico",
+      #                                                       "Virgin Islands",
+       #                                                      "Recovered")))
+
+```
+
+
+sorting and saving
+
+```{r}
+#sort from least recent to most recent 
+#sorted_df <- binded_df %>% arrange(ymd(binded_df$Converted_Date))
+
+#save cleaned data
+#write.csv(sorted_df, file = "Data/csse_covid_19_daily_reports_us_CLEAN.csv")
+```
+
+
+Adding stringency index to new sorted dataframe, naming the new dataframe tidyData_v1
+
+Each version of the tidyData table adds an index until all 4 are added in tidyData_v4
+
+```{r}
+
+#Joining in time series data - Stringency Index
+
+
+#StringencyIndex <- read_excel('Data/OxCGRT_timeseries_us_subnational_indices.xlsx', 
+#                              sheet = "StringencyIndex")
+#
+#StringencyIndex_clean <- StringencyIndex %>%
+#  filter(!is.na(RegionName)) %>%
+#  pivot_longer(cols= c(colnames(StringencyIndex[8:1162])),
+#                    names_to='Date',
+#                    values_to='StringencyIndex')
+#
+#  
+#StringencyIndex_clean$Converted_Date <- as_date(StringencyIndex_clean$Date, format = "%d%b%Y")
+#
+#StringencyIndex_clean$RegionName[StringencyIndex_clean$RegionName == "Washington DC"] <- "District of Columbia"
+#
+#StringencyIndex_clean$Date <- NULL
+#
+#tidyData_v1 <- left_join(sorted_df, 
+#                       StringencyIndex_clean, 
+#                       by = c("Province_State" = "RegionName", "Converted_Date"))
+#
+```
+
+
+
+
+
