@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Creating a list of file names(which include the date of each file's data)
 ```{r}
-time_series_list <- list.files('Data/csse_covid_19_daily_reports_us', full.names = TRUE)
+time_series_list <- list.files('../Data/csse_covid_19_daily_reports_us', full.names = TRUE)
 
 ```
 Reading in the first 18 columns (gets rid of 3 extra columns that data was not collected for in 2023) of each file in the list,
@@ -33,7 +33,7 @@ df <- lapply(time_series_list, function(file){
   table
 })
 
-head(df)
+head(df, n = 5)
 ```
 Creates a new dataframe with all days' data stacked on top of each other using row bind and
 
