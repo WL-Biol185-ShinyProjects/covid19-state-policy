@@ -192,11 +192,32 @@ tidyData_v4 <- left_join(tidyData_v3,
 head(tidyData_v4)
 ```
 
+Creating the daily deaths column
+
+```{r}
+dailyDeathsCount <- function(Deaths){
+  d <- sapply(2:length(Deaths), function(i){
+    Deaths[i] - Deaths[i-1]
+  })
+  
+  c(Deaths[1],d)
+  
+}
+
+tidyData_v5 <- tidyData_v4 %>%
+  group_by(Province_State) %>%
+  mutate(dailyDeaths = dailyDeathsCount(Deaths))
+
+head(tidyData_v5)
+```
+
+
+
 saving tidy table
 
 ```{r}
 #save cleaned data
-write.csv(tidyData_v4, file = "../Data/covid19_state_policy_tidydata.csv")
+write.csv(tidyData_v5, file = "../Data/covid19_state_policy_tidydata.csv")
 
 ```
 
