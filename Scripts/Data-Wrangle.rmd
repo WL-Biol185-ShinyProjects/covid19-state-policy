@@ -104,7 +104,100 @@ tidyData_v1 <- left_join(sorted_df,
 head(tidyData_v1)
 ```
 
+Adding containment health index to v1, naming the new dataframe tidyData_v2:
+
+```{r}
+#Joining in time series data - ContainmentHealthIndex
+ContainmentHealthIndex <- read_excel('../Data/OxCGRT_timeseries_us_subnational_indices.xlsx', 
+                              sheet = "ContainmentHealthIndex")
+
+ContainmentHealthIndex_clean <- ContainmentHealthIndex %>%
+  filter(!is.na(RegionName)) %>%
+  pivot_longer(cols= c(colnames(ContainmentHealthIndex[8:1162])),
+               names_to='Date',
+               values_to='ContainmentHealthIndex')
+
+ContainmentHealthIndex_clean <- ContainmentHealthIndex_clean[,c(4,8,9)]
+
+ContainmentHealthIndex_clean$Converted_Date <- as_date(ContainmentHealthIndex_clean$Date, format = "%d%b%Y")
+
+ContainmentHealthIndex_clean$RegionName[ContainmentHealthIndex_clean$RegionName == "Washington DC"] <- "District of Columbia"
+
+ContainmentHealthIndex_clean$Date <- NULL
+
+tidyData_v2 <- left_join(tidyData_v1, 
+                      ContainmentHealthIndex_clean, 
+                      by = c("Province_State" = "RegionName", "Converted_Date"))
 
 
+head(tidyData_v2)
+```
+
+Adding government response index to new sorted v2, naming the new dataframe tidyData_v3:
+
+```{r}
+#Joining in time series data - GovernmentResponseIndex
+GovernmentResponseIndex <- read_excel('../Data/OxCGRT_timeseries_us_subnational_indices.xlsx', 
+                                     sheet = "GovernmentResponseIndex")
+
+GovernmentResponseIndex_clean <- GovernmentResponseIndex %>%
+  filter(!is.na(RegionName)) %>%
+  pivot_longer(cols= c(colnames(GovernmentResponseIndex[8:1162])),
+               names_to='Date',
+               values_to='GovernmentResponseIndex')
+
+GovernmentResponseIndex_clean <- GovernmentResponseIndex_clean[,c(4,8,9)]
+
+GovernmentResponseIndex_clean$Converted_Date <- as_date(GovernmentResponseIndex_clean$Date, format = "%d%b%Y")
+
+GovernmentResponseIndex_clean$RegionName[GovernmentResponseIndex_clean$RegionName == "Washington DC"] <- "District of Columbia"
+
+GovernmentResponseIndex_clean$Date <- NULL
+
+tidyData_v3 <- left_join(tidyData_v2, 
+                         GovernmentResponseIndex_clean, 
+                         by = c("Province_State" = "RegionName", "Converted_Date"))
+
+
+head(tidyData_v3)
+
+```
+
+Adding economic support index to new sorted v3, naming the new dataframe tidyData_v4:
+
+```{r}
+#Joining in time series data - EconomicSupportIndex
+EconomicSupportIndex <- read_excel('../Data/OxCGRT_timeseries_us_subnational_indices.xlsx', 
+                                      sheet = "EconomicSupportIndex")
+
+EconomicSupportIndex_clean <- EconomicSupportIndex %>%
+  filter(!is.na(RegionName)) %>%
+  pivot_longer(cols= c(colnames(EconomicSupportIndex[8:1162])),
+               names_to='Date',
+               values_to='EconomicSupportIndex')
+
+EconomicSupportIndex_clean <- EconomicSupportIndex_clean[,c(4,8,9)]
+
+EconomicSupportIndex_clean$Converted_Date <- as_date(EconomicSupportIndex_clean$Date, format = "%d%b%Y")
+
+EconomicSupportIndex_clean$RegionName[EconomicSupportIndex_clean$RegionName == "Washington DC"] <- "District of Columbia"
+
+EconomicSupportIndex_clean$Date <- NULL
+
+tidyData_v4 <- left_join(tidyData_v3, 
+                         EconomicSupportIndex_clean, 
+                         by = c("Province_State" = "RegionName", "Converted_Date"))
+
+
+head(tidyData_v4)
+```
+
+saving tidy table
+
+```{r}
+#save cleaned data
+write.csv(tidyData_v4, file = "../Data/covid19_state_policy_tidydata.csv")
+
+```
 
 
