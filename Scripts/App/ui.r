@@ -1,3 +1,6 @@
+file <- "../../Data/covid19_state_policy_tidydata.csv"
+policyData <- read.csv(file)
+
 # Define UI 
 
 ui <- fluidPage(
@@ -11,7 +14,7 @@ ui <- fluidPage(
       selectInput(
         inputId = "y",
         label = "Y-axis:",
-        choices = c("StringencyIndex", "ContaintmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+        choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
         selected = "StringencyIndex"
       ),
       # Select variable for x-axis
@@ -24,16 +27,16 @@ ui <- fluidPage(
       
       # Select State to filter by
       selectInput(
-        inputId = "x",
+        inputId = "State",
         label = "Province_State:",
-        choices = c(unique(covid19_state_policy_tidydata$Province_State)),
+        choices = c(unique(policyData$Province_State)),
         selected = "Alabama"
       ),
     ),
     
     # Output: Show scatterplot
     mainPanel(
-      plotOutput(outputId = "scatterplot")
+      plotOutput(outputId = "indexPlot")
     )
   )
 )
