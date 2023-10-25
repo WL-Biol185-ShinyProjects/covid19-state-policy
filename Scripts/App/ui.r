@@ -8,6 +8,7 @@ ui <- fluidPage(
   navbarPage("Covid-19 State Policy Analysis App",
              tabPanel(
                "Component 1",
+               
                sidebarLayout(
                  
                  # Inputs: Select variables to plot
@@ -34,21 +35,36 @@ ui <- fluidPage(
                      label = "Province_State:",
                      choices = c(unique(policyData$Province_State)),
                      selected = "Alabama"
-                   ),
+                   )
                  ),
                  
                  # Output: Show plots
-                 mainPanel(
-                   tabPanel("Plot",
+                 mainPanel("Plot",
                             plotOutput("indexPlot"),
                             br(),
                             br(),
-                            plotOutput("deathsPlot"))
-                 )
-               ),
-               tabPanel("Component 2"),
-               tabPanel("Component 3")
-               
+                            plotOutput("deathsPlot")
+                  )
+                ),
+            tabPanel(
+              "Component 2",
+                        
+              sidebarLayout(
+                          
+                # Inputs: Select variables to plot
+                sidebarPanel("Time",
+                             "Time:",
+                             min = as.Date("2020-04-12","%Y-%m-%d"),
+                             max = as.Date("2022-12-31","%Y-%m-%d"),
+                             value=as.Date("2020-04-12"),
+                             timeFormat="%Y-%m-%d"),
+                          
+                mainPanel("Plot",
+                          plotOutput("DeathsOverTimebyDensity")
+                            )
+                          ),
+            tabPanel("Component 3")
+      )         
     )
   )
 )
