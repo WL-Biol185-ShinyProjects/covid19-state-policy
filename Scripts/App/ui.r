@@ -36,7 +36,11 @@ ui <- fluidPage(
     
     # Output: Show scatterplot
     mainPanel(
-      plotOutput(outputId = "indexPlot")
+      tabPanel("Plot",
+               plotOutput("indexPlot"),
+               br(),
+               br(),
+               plotOutput("deathsPlot"))
     )
   )
 )
