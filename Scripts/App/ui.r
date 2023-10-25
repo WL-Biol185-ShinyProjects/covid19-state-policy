@@ -5,42 +5,50 @@ policyData <- read.csv(file)
 
 ui <- fluidPage(
   
-  sidebarLayout(
-    
-    # Inputs: Select variables to plot
-    sidebarPanel(
-      
-      # Select variable for y-axis
-      selectInput(
-        inputId = "y",
-        label = "Y-axis:",
-        choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-        selected = "StringencyIndex"
-      ),
-      # Select variable for x-axis
-      selectInput(
-        inputId = "x",
-        label = "X-axis:",
-        choices = c("Converted_Date"),
-        selected = "Converted_Date"
-      ),
-      
-      # Select State to filter by
-      selectInput(
-        inputId = "State",
-        label = "Province_State:",
-        choices = c(unique(policyData$Province_State)),
-        selected = "Alabama"
-      ),
-    ),
-    
-    # Output: Show scatterplot
-    mainPanel(
-      tabPanel("Plot",
-               plotOutput("indexPlot"),
-               br(),
-               br(),
-               plotOutput("deathsPlot"))
+  navbarPage("Covid-19 State Policy Analysis App",
+             tabPanel(
+               "Component 1",
+               sidebarLayout(
+                 
+                 # Inputs: Select variables to plot
+                 sidebarPanel(
+                   
+                   # Select variable for y-axis
+                   selectInput(
+                     inputId = "y",
+                     label = "Y-axis:",
+                     choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                     selected = "StringencyIndex"
+                   ),
+                   # Select variable for x-axis
+                   selectInput(
+                     inputId = "x",
+                     label = "X-axis:",
+                     choices = c("Converted_Date"),
+                     selected = "Converted_Date"
+                   ),
+                   
+                   # Select State to filter by
+                   selectInput(
+                     inputId = "State",
+                     label = "Province_State:",
+                     choices = c(unique(policyData$Province_State)),
+                     selected = "Alabama"
+                   ),
+                 ),
+                 
+                 # Output: Show plots
+                 mainPanel(
+                   tabPanel("Plot",
+                            plotOutput("indexPlot"),
+                            br(),
+                            br(),
+                            plotOutput("deathsPlot"))
+                 )
+               ),
+               tabPanel("Component 2"),
+               tabPanel("Component 3")
+               
     )
   )
 )
