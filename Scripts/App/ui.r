@@ -14,7 +14,7 @@ ui <- fluidPage(
                    
                    # Select variable for y-axis
                    selectInput(
-                     inputId = "y",
+                     inputId = "Index",
                      label = "Y-axis:",
                      choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                      selected = "StringencyIndex"
@@ -46,12 +46,26 @@ ui <- fluidPage(
                 ),
                
              tabPanel("Component 2",
-                 mainPanel("Plot2",
-                           plotOutput("DeathsOverTimebyDensity")
-                      
-        
-      )
-    )
+                      # Sidebar to demonstrate slider option for time
+                      sidebarPanel(
+                        
+                        # Select State to filter by
+                        # selectInput(
+                        #   inputId = "State",
+                        #   label = "Province_State:",
+                        #   choices = c(unique(policyData$Province_State)),
+                        #   selected = "Alabama"
+                        # ),
+                        
+                        # Input: Simple time interval
+                        sliderInput("Time", "Time:",
+                                    min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
+                                    value = as.Date("2020-04-13"), animate =
+                                      animationOptions(interval = 200, loop = TRUE)),
+                
+                      mainPanel("Plot2",
+                           plotOutput("DeathsOverTimebyDensity")))
+    )                  
   )         
 )
 
