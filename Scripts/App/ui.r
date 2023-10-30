@@ -5,11 +5,9 @@ policyData <- read.csv(file)
 
 ui <- fluidPage(
   
-  navbarPage("Covid-19 State Policy Analysis App",
+  navbarPage("Covid-19 State Policy App",
              tabPanel(
                "Component 1",
-               
-               sidebarLayout(
                  
                  # Inputs: Select variables to plot
                  sidebarPanel(
@@ -46,25 +44,14 @@ ui <- fluidPage(
                             plotOutput("deathsPlot")
                   )
                 ),
-            tabPanel(
-              "Component 2",
-                        
-              sidebarLayout(
-                          
-                # Inputs: Select variables to plot
-                sidebarPanel("Time",
-                             "Time:",
-                             min = as.Date("2020-04-12","%Y-%m-%d"),
-                             max = as.Date("2022-12-31","%Y-%m-%d"),
-                             value=as.Date("2020-04-12"),
-                             timeFormat="%Y-%m-%d"),
-                          
-                mainPanel("Plot",
-                          plotOutput("DeathsOverTimebyDensity")
-                            )
-                          ),
-            tabPanel("Component 3")
-      )         
+               
+             tabPanel("Component 2",
+                 mainPanel("Plot2",
+                           plotOutput("DeathsOverTimebyDensity")
+                      
+        
+      )
     )
-  )
+  )         
 )
+
