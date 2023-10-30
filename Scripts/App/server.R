@@ -78,6 +78,7 @@ function(input, output, session) {
       #                                 "2022-01-01", "2022-07-01", 
       #                                 "2022-12-31"))) +
       # ylim(0,100) +
+      
       ggtitle(deathsDensityPlotTitle)+
       theme(axis.text.x = element_text(color = "black",
                                        size = 8, angle = 90, vjust=1, hjust=1),
