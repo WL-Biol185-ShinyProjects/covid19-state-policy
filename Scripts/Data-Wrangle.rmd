@@ -208,7 +208,14 @@ tidyData_v5 <- tidyData_v4 %>%
   group_by(Province_State) %>%
   mutate(dailyDeaths = dailyDeathsCount(Deaths))
 
+ifelse(tidyData_v5$dailyDeaths < 0, NA, tidyData_v5$dailyDeaths)
+
+
 head(tidyData_v5)
+
+
+
+
 ```
 
 
