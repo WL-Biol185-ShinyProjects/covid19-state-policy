@@ -66,15 +66,57 @@ function(input, output, session) {
     
     ## TAB 3 Linked Plots Over Maps #########################################
     
-    output$indexMapPlot <- renderPlot({
+#  function getColor(d) {
+#    return d > 1000 ? '#800026' :
+#      d > 500  ? '#BD0026' :
+#      d > 200  ? '#E31A1C' :
+#      d > 100  ? '#FC4E2A' :
+#      d > 50   ? '#FD8D3C' :
+#      d > 20   ? '#FEB24C' :
+#      d > 10   ? '#FED976' :
+#      '#FFEDA0';
+#  }
+  
+    # Setting up index in each state over time
+  
+    output$indexMapPlot <-renderLeaflet({
+      leaflet() %>%
+        addProviderTiles(providers$maps,
+                         options = providerTileOptions(noWrap = TRUE)
+        ) %>%
+        
+    })
+  
+    #from whitwort chloropleth example repo  
+    geo <- geojson_read("states.geo.json", what = "sp")
+    
+    # geo@data <- left_join(geo@data, myTable, by = c("NAME" = "State"))
+    
+    geo@data <- mutate(geo@data, value = sample(1:100, nrow(geo@data)))
+    
+    pal <- colorBin("YlOrRd", domain = geo@data$value)
+    
+    leaflet(geo) %>%
+      addPolygons(fillColor = ~pal(value))
+    
+    
+    
       indexMapPlotTitle <- paste(as.character(input$y), "Over Time")
       
       
-    })
-    
-    output$deathsMapPlot <-  mapStates = map("state", fill = TRUE, plot = FALSE)
+    # Setting up deaths over time in each state on map
+      
+      deathsMapPlotTitle <- paste("Daily Deaths Over Time")
+      
+      
+    output$deathsMapPlot <- renderLealet({
+      
+      
+      mapStates = map("state", fill = TRUE, plot = FALSE)
     leaflet(data = mapStates) %>% addTiles() %>%
       addPolygons(fillColor = topo.colors(10, alpha = NULL), stroke = FALSE) 
-  
+   
+    
+     )}
 
 }
