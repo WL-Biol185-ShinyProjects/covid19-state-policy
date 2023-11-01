@@ -206,10 +206,8 @@ dailyDeathsCount <- function(Deaths){
 
 tidyData_v5 <- tidyData_v4 %>%
   group_by(Province_State) %>%
-  mutate(dailyDeaths = dailyDeathsCount(Deaths))
-
-ifelse(tidyData_v5$dailyDeaths < 0, NA, tidyData_v5$dailyDeaths)
-
+  mutate(dailyDeaths = dailyDeathsCount(Deaths)) %>%
+  mutate(dailyDeaths = ifelse(dailyDeaths < 0, NA, dailyDeaths))
 
 head(tidyData_v5)
 

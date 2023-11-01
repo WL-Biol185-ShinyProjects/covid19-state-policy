@@ -121,6 +121,7 @@ tidyData_v4 <- left_join(tidyData_v3,
                          EconomicSupportIndex_clean, 
                          by = c("Province_State" = "RegionName", "Converted_Date"))
 
+
 #save cleaned data
 write.csv(tidyData_v4, file = "Data/covid19_state_policy_tidydata.csv")
 
