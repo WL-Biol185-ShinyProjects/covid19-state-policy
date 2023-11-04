@@ -59,14 +59,15 @@ function(input, output, session) {
   
   ## TAB 2 [Deaths Over Time by State; sorted by Density] ###########################################
   
-  output$DeathsOverTimebyDensity <- renderPlot({
+  output$DeathsOverTimebyDensity <- renderPlotly({
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
     
     policyData %>%
       filter(Converted_Date == input$Time) %>%
       plot_ly(x = ~as.factor(Province_State), 
-              y = ~dailyDeaths) 
+              y = ~dailyDeaths) %>%
+      layout(yaxis = list(range = c(0,1000)))
       
       
       # ggplot(aes(as.factor(Province_State), dailyDeaths, 

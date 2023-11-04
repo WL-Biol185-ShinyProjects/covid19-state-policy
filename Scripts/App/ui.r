@@ -35,6 +35,7 @@ ui <- fluidPage(
                      selected = "Alabama"
                    )
                  ),
+              
                  
                  # Output: Show plots
                  mainPanel("Plot",
@@ -64,7 +65,7 @@ ui <- fluidPage(
                                       animationOptions(interval = 200, loop = TRUE)),
                 
                       mainPanel("Plot2",
-                           plotOutput("DeathsOverTimebyDensity")))
+                           plotlyOutput("DeathsOverTimebyDensity")))
     )                  
   )         
 )
