@@ -78,10 +78,10 @@ ui <- fluidPage(
                      
                      
                      mainPanel("Plot3",
-                               plotOutput("deathsMap"),
+                               renderLeaflet("deathsMap"),
                                br(),
                                br(),
-                               plotOutput("indexMap")
+                               renderLeaflet("indexMap")
                                
                      )
              )
