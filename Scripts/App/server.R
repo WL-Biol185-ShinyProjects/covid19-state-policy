@@ -63,25 +63,15 @@ function(input, output, session) {
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
     
+    policyData$Province_State <- as.factor(policyData$Province_State)
+    
     policyData %>%
       filter(Converted_Date == input$Time) %>%
-      plot_ly(x = ~as.factor(Province_State), 
+      plot_ly(x = ~Province_State, 
               y = ~dailyDeaths,
               type = 'bar') %>%
-      layout(xaxis = list(title=list(text = "State", standoff = 10)),
+      layout(xaxis = list(type = 'category', title=list(text = "State", standoff = 10)),
              yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), range = c(0,1000)))
-      
-      
-      # ggplot(aes(as.factor(Province_State), dailyDeaths, 
-      #                   group = 1)) +
-      # geom_point(color='red', fill = 'red', size=1, alpha = 0.7) +
-      # 
-      # ggtitle(deathsDensityPlotTitle)+
-      # theme(axis.text.x = element_text(color = "black",
-      #                                  size = 8, angle = 90, vjust=1, hjust=1),
-      #       plot.title = element_text(hjust = 0.5, size = 22))+
-      # ylim(0,1000)
-    
     
   })
 }
