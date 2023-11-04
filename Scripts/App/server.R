@@ -66,8 +66,10 @@ function(input, output, session) {
     policyData %>%
       filter(Converted_Date == input$Time) %>%
       plot_ly(x = ~as.factor(Province_State), 
-              y = ~dailyDeaths) %>%
-      layout(yaxis = list(range = c(0,1000)))
+              y = ~dailyDeaths,
+              type = 'bar') %>%
+      layout(xaxis = list(title=list(text = "State", standoff = 10)),
+             yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), range = c(0,1000)))
       
       
       # ggplot(aes(as.factor(Province_State), dailyDeaths, 

@@ -1,3 +1,5 @@
+library(plotly)
+
 file <- "../../Data/covid19_state_policy_tidydata.csv"
 policyData <- read.csv(file)
 
