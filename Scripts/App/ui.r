@@ -64,7 +64,7 @@ ui <- fluidPage(
                         sliderInput("Time", "Time:",
                                     min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
                                     value = as.Date("2020-04-13"), animate =
-                                      animationOptions(interval = 200, loop = TRUE)),
+                                      animationOptions(interval = 250, loop = TRUE)),
                 
                       mainPanel("Plot2",
                            plotlyOutput("DeathsOverTimebyDensity")))

@@ -65,13 +65,36 @@ function(input, output, session) {
     
     policyData$Province_State <- as.factor(policyData$Province_State)
     
+    # densityData <- densityData %>% arrange(desc("basePD"))
+    # densityOrder <- as.array(rownames(densityData))
+    
+    # if (input$Time <= as.Date("2020-07-01")){
+    #   densityData <- densityData[order(densityData$basePD),]
+    # }else if(input$Time <= as.Date("2021-07-01")){
+    #   densityData <- arrange(densityData, densityData$`2020PD`)
+    # }else if(input$Time <= as.Date("2022-07-01")){
+    #   densityData <- arrange(densityData, densityData$`2021PD`)
+    # } else{
+    #   densityData <- arrange(densityData, densityData$`2022PD`)
+    # }
+    
+    densityData <- densityData[order(densityData$basePD),]
+    densityOrder <- densityData$State
+    
+    policyData$Province_State <- factor(policyData$Province_State, levels = densityOrder)
+    
     policyData %>%
       filter(Converted_Date == input$Time) %>%
+      # filter(is.na(dailyDeaths) == FALSE) %>%
+      arrange(densityOrder) %>%
       plot_ly(x = ~Province_State, 
               y = ~dailyDeaths,
-              type = 'bar') %>%
-      layout(xaxis = list(type = 'category', title=list(text = "State", standoff = 10)),
-             yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), range = c(0,1000)))
+              type = 'bar',
+              width = 800, 
+              height = 450) %>%
+      layout(xaxis = list(title=list(text = "State", standoff = 10)),
+             yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
+                          range = c(0,1000)))
     
   })
 }

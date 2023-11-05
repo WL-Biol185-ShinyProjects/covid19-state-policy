@@ -1,6 +1,6 @@
 ---
 title: "Data-Wrangle.rmd"
-author: "Sanil Partha"
+author: "Sanil Partha & Sarp Sahin"
 date: "10/17/2023"
 output: html_document
 ---
@@ -207,7 +207,7 @@ dailyDeathsCount <- function(Deaths){
 tidyData_v5 <- tidyData_v4 %>%
   group_by(Province_State) %>%
   mutate(dailyDeaths = dailyDeathsCount(Deaths)) %>%
-  mutate(dailyDeaths = ifelse(dailyDeaths < 0, NA, dailyDeaths))
+  mutate(dailyDeaths = ifelse(dailyDeaths < 0, 0, dailyDeaths))
 
 head(tidyData_v5)
 

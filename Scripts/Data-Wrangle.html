@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Sanil Partha" />
+<meta name="author" content="Sanil Partha &amp; Sarp Sahin" />
 
 <meta name="date" content="2023-10-17" />
 
@@ -163,7 +163,7 @@ pre code {
 
 
 <h1 class="title toc-ignore">Data-Wrangle.rmd</h1>
-<h4 class="author">Sanil Partha</h4>
+<h4 class="author">Sanil Partha &amp; Sarp Sahin</h4>
 <h4 class="date">10/17/2023</h4>
 
 </div>
@@ -1745,7 +1745,7 @@ head(tidyData_v4)</code></pre>
 tidyData_v5 &lt;- tidyData_v4 %&gt;%
   group_by(Province_State) %&gt;%
   mutate(dailyDeaths = dailyDeathsCount(Deaths)) %&gt;%
-  mutate(dailyDeaths = ifelse(dailyDeaths &lt; 0, NA, dailyDeaths))
+  mutate(dailyDeaths = ifelse(dailyDeaths &lt; 0, 0, dailyDeaths))
 
 head(tidyData_v5)</code></pre>
 <pre><code>## # A tibble: 6 × 31
