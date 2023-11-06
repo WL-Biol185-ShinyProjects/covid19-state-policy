@@ -2,6 +2,8 @@ library(ggplot2)
 library(tidyverse)
 library(maps)
 library(leaflet)
+library(geojsonio)
+library(shiny)
 
 # Define server 
 file <- "../../Data/covid19_state_policy_tidydata.csv"
@@ -77,6 +79,10 @@ function(input, output, session) {
 #      '#FFEDA0';
 #  }
   
+  
+  #converting tidy data table into a table that can be piped and added to the geojson:
+  #transposedData <- t(policyData)
+  
     # Setting up index in each state over time
   
     output$indexMapPlot <-renderLeaflet({
@@ -88,9 +94,11 @@ function(input, output, session) {
     })
   
     #from whitwort chloropleth example repo  
-    geo <- geojson_read("states.geo.json", what = "sp")
+    geo <- geojson_read("../../Data/states.geo.json", what = "sp")
     
-    # geo@data <- left_join(geo@data, myTable, by = c("NAME" = "State"))
+    oneDayData <- filter(policyData, policyData$Converted_Date == as.Date(input$date))
+    
+    # geo@data <- left_join(geo@data, policyData, by = c("NAME" = "State"))
     
     geo@data <- mutate(geo@data, value = sample(1:100, nrow(geo@data)))
     
