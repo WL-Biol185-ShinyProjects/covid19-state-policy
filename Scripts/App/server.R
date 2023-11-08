@@ -100,7 +100,7 @@ function(input, output, session) {
   
   output$IndexOverTimeLow <- renderPlotly({
     
-    #Setting up low density states df
+    #Setting up low density states
     
     lowStates <- filter(densityData, densityData$class == "Low")
     policyDataLow <- policyData %>%
@@ -119,6 +119,8 @@ function(input, output, session) {
              yaxis = list(title = "Index", range = c(0,100)))
     
   })
+  
+  ##WORK ON THIS NEXT
   
   observe({
     plotlyProxy("IndexOverTimeLow", session) %>%

@@ -49,33 +49,34 @@ ui <- fluidPage(
                 ),
                
              tabPanel("Component 2",
+                      
+                      sidebarLayout(
                       # Sidebar to demonstrate slider option for time
-                      sidebarPanel(
+                        sidebarPanel(
                         
                         # Input: Simple time interval
-                        sliderInput("Time", "Time:",
-                                    min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
-                                    value = as.Date("2020-04-13"), animate =
+                          sliderInput("Time", "Time:",
+                                      min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
+                                      value = as.Date("2020-04-13"), animate =
                                       animationOptions(interval = 250, loop = TRUE)),
-                        # Select variable for y-axis
-                        selectInput(
-                          inputId = "Index",
-                          label = "Index",
-                          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-                          selected = "StringencyIndex"),
+                          # Select variable for y-axis
+                          selectInput(
+                            inputId = "Index",
+                            label = "Index",
+                            choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                            selected = "StringencyIndex")),
                 
-                      mainPanel("Plot2",
-                           plotlyOutput("DeathsOverTimebyDensityLow"),
-                           br(),
-                           br(),
-                           plotlyOutput("IndexOverTimeLow"),
-                           br(),
-                           br(),
-                           plotlyOutput("DeathsOverTimebyDensityMedium"),
-                           br(),
-                           br(),
-                           plotlyOutput("DeathsOverTimebyDensityHigh")))
-                      
+                        mainPanel("Plot2",
+                                  fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityLow')),
+                                           column(6,plotlyOutput('IndexOverTimeLow'))),
+                                  br(),
+                                  br(),
+                                  fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityMedium')),
+                                           column(6,plotlyOutput('IndexOverTimeMedium'))),
+                                  br(),
+                                  br(),
+                                  fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityHigh')),
+                                           column(6,plotlyOutput('IndexOverTimeHigh')))
     )                  
   )         
 )
