@@ -98,76 +98,42 @@ function(input, output, session) {
     
   })
   
-  output$IndexOverTime <- renderPlotly({
+  output$IndexOverTimeLow <- renderPlotly({
     
     #Setting up low density states df
-    lowStates <- filter(densityData, densityData$class == "Low")
-    policyDataLow <- policyData %>% 
-      filter(Province_State %in% lowStates$State)
     
-    accumulate_by <- function(dat, var) {
-      var <- lazyeval::f_eval(var, dat)
-      lvls <- plotly:::getLevels(var)
-      dats <- lapply(seq_along(lvls), function(x) {
-        cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
-      })
-      dplyr::bind_rows(dats)
-    }
-    
-    #Setting up low density states df
     lowStates <- filter(densityData, densityData$class == "Low")
-    policyDataLow <- policyData %>% 
+    policyDataLow <- policyData %>%
       filter(Province_State %in% lowStates$State) %>%
-      filter(Converted_Date <= input$Time)
-    
-    policyDataLow %>%
-      split(.$Converted_Date) %>%
-      accumulate(~bind_rows(.x,.y)) %>%
-      bind_rows(.id = "frame") %>%
-      plot_ly(x = ~Converted_Date, y = ~StringencyIndex, split = ~Province_State) %>%
-      add_lines(
-        frame = ~frame, showlegend = FALSE
-      )
-    
-    
-    # policyDataLow <- policyDataLow %>% accumulate_by(~Converted_Date)
-    
-    
-    # fig <- policyDataLow %>%
-    #   plot_ly(
-    #     x = ~Converted_Date, 
-    #     y = ~StringencyIndex,
-    #     split = ~Province_State,
-    #     frame = ~frame, 
-    #     type = 'scatter',
-    #     mode = 'lines', 
-    #     line = list(simplyfy = F)
-    #   )
-    # fig <- fig %>% layout(
-    #   xaxis = list(
-    #     title = "Date",
-    #     zeroline = F
-    #   ),
-    #   yaxis = list(
-    #     title = "Median",
-    #     zeroline = F
-    #   )
-    # ) 
-    # fig <- fig %>% animation_opts(
-    #   frame = 100, 
-    #   transition = 0, 
-    #   redraw = FALSE
-    # )
-    # fig <- fig %>% animation_slider(
-    #   hide = T
-    # )
-    # fig <- fig %>% animation_button(
-    #   x = 1, xanchor = "right", y = 0, yanchor = "bottom"
-    # )
-    # 
-    # fig
+      filter(Converted_Date <= input$Time) %>%
+      plot_ly(
+        x = ~Converted_Date, 
+        y = as.formula(paste0('~', input$Index)),
+        split = ~Province_State,
+        # frame = ~frame,
+        type = 'scatter',
+        mode = 'lines'
+        # line = list(color = "red")
+      ) %>%
+      layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
+             yaxis = list(title = "Index", range = c(0,100)))
     
   })
+  
+  observe({
+    plotlyProxy("IndexOverTimeLow", session) %>%
+      plotlyProxyInvoke(
+        "addTraces", 
+        list(
+          x = input$Time,
+          y = input$Index,
+          type = "scatter",
+          mode = "lines",
+          line = list(color = "red")
+        )
+      )
+    }
+  )
 
   output$DeathsOverTimebyDensityMedium <- renderPlotly({
     
@@ -219,4 +185,3 @@ function(input, output, session) {
     #          yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
     #                       range = c(0,1000)))
     # 
-  
