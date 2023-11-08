@@ -1,6 +1,7 @@
 library(ggplot2)
 library(tidyverse)
 library(plotly)
+library(purrr)
 
 # Define server 
 file1 <- "../../Data/covid19_state_policy_tidydata.csv"
@@ -59,42 +60,163 @@ function(input, output, session) {
   
   ## TAB 2 [Deaths Over Time by State; sorted by Density] ###########################################
   
-  output$DeathsOverTimebyDensity <- renderPlotly({
+  output$DeathsOverTimebyDensityLow <- renderPlotly({
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
-    
-    policyData$Province_State <- as.factor(policyData$Province_State)
-    
-    # densityData <- densityData %>% arrange(desc("basePD"))
-    # densityOrder <- as.array(rownames(densityData))
-    
-    # if (input$Time <= as.Date("2020-07-01")){
-    #   densityData <- densityData[order(densityData$basePD),]
-    # }else if(input$Time <= as.Date("2021-07-01")){
-    #   densityData <- arrange(densityData, densityData$`2020PD`)
-    # }else if(input$Time <= as.Date("2022-07-01")){
-    #   densityData <- arrange(densityData, densityData$`2021PD`)
-    # } else{
-    #   densityData <- arrange(densityData, densityData$`2022PD`)
-    # }
-    
-    densityData <- densityData[order(densityData$basePD),]
+     
+    if (input$Time <= as.Date("2020-07-01")){
+      densityData <- densityData[order(densityData$basePD),]
+    }else if(input$Time <= as.Date("2021-07-01")){
+       densityData <- arrange(densityData, densityData$`2020PD`)
+    }else if(input$Time <= as.Date("2022-07-01")){
+       densityData <- arrange(densityData, densityData$`2021PD`)
+    } else{
+       densityData <- arrange(densityData, densityData$`2022PD`)
+    }
+     
     densityOrder <- densityData$State
     
     policyData$Province_State <- factor(policyData$Province_State, levels = densityOrder)
     
-    policyData %>%
+    #Setting up low density states df
+    lowStates <- filter(densityData, densityData$class == "Low")
+    densityOrderLow <- intersect(densityOrder, lowStates$State)
+    policyDataLow <- policyData %>% 
+      filter(Province_State %in% lowStates$State)
+    
+    policyDataLow %>%
       filter(Converted_Date == input$Time) %>%
-      # filter(is.na(dailyDeaths) == FALSE) %>%
-      arrange(densityOrder) %>%
+      arrange(densityOrderLow) %>%
       plot_ly(x = ~Province_State, 
               y = ~dailyDeaths,
               type = 'bar',
               width = 800, 
               height = 450) %>%
-      layout(xaxis = list(title=list(text = "State", standoff = 10)),
+      layout(xaxis = list(title=list(text = "Low Density States", standoff = 10)),
              yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
                           range = c(0,1000)))
     
   })
+  
+  output$IndexOverTime <- renderPlotly({
+    
+    #Setting up low density states df
+    lowStates <- filter(densityData, densityData$class == "Low")
+    policyDataLow <- policyData %>% 
+      filter(Province_State %in% lowStates$State)
+    
+    accumulate_by <- function(dat, var) {
+      var <- lazyeval::f_eval(var, dat)
+      lvls <- plotly:::getLevels(var)
+      dats <- lapply(seq_along(lvls), function(x) {
+        cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
+      })
+      dplyr::bind_rows(dats)
+    }
+    
+    #Setting up low density states df
+    lowStates <- filter(densityData, densityData$class == "Low")
+    policyDataLow <- policyData %>% 
+      filter(Province_State %in% lowStates$State) %>%
+      filter(Converted_Date <= input$Time)
+    
+    policyDataLow %>%
+      split(.$Converted_Date) %>%
+      accumulate(~bind_rows(.x,.y)) %>%
+      bind_rows(.id = "frame") %>%
+      plot_ly(x = ~Converted_Date, y = ~StringencyIndex, split = ~Province_State) %>%
+      add_lines(
+        frame = ~frame, showlegend = FALSE
+      )
+    
+    
+    # policyDataLow <- policyDataLow %>% accumulate_by(~Converted_Date)
+    
+    
+    # fig <- policyDataLow %>%
+    #   plot_ly(
+    #     x = ~Converted_Date, 
+    #     y = ~StringencyIndex,
+    #     split = ~Province_State,
+    #     frame = ~frame, 
+    #     type = 'scatter',
+    #     mode = 'lines', 
+    #     line = list(simplyfy = F)
+    #   )
+    # fig <- fig %>% layout(
+    #   xaxis = list(
+    #     title = "Date",
+    #     zeroline = F
+    #   ),
+    #   yaxis = list(
+    #     title = "Median",
+    #     zeroline = F
+    #   )
+    # ) 
+    # fig <- fig %>% animation_opts(
+    #   frame = 100, 
+    #   transition = 0, 
+    #   redraw = FALSE
+    # )
+    # fig <- fig %>% animation_slider(
+    #   hide = T
+    # )
+    # fig <- fig %>% animation_button(
+    #   x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+    # )
+    # 
+    # fig
+    
+  })
+
+  output$DeathsOverTimebyDensityMedium <- renderPlotly({
+    
+    deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
+    
+    if (input$Time <= as.Date("2020-07-01")){
+      densityData <- densityData[order(densityData$basePD),]
+    }else if(input$Time <= as.Date("2021-07-01")){
+      densityData <- arrange(densityData, densityData$`2020PD`)
+    }else if(input$Time <= as.Date("2022-07-01")){
+      densityData <- arrange(densityData, densityData$`2021PD`)
+    } else{
+      densityData <- arrange(densityData, densityData$`2022PD`)
+    }
+    
+    densityOrder <- densityData$State
+    
+    policyData$Province_State <- factor(policyData$Province_State, levels = densityOrder)
+    
+    #Setting up medium density states df
+    mediumStates <- filter(densityData, densityData$class == "Medium")
+    densityOrderMedium <- intersect(densityOrder, mediumStates$State)
+    policyDataMedium <- policyData %>% 
+      filter(Province_State %in% mediumStates$State)
+    
+    policyDataMedium %>%
+      filter(Converted_Date == input$Time) %>%
+      arrange(densityOrderMedium) %>%
+      plot_ly(x = ~Province_State, 
+              y = ~dailyDeaths,
+              type = 'bar',
+              width = 800, 
+              height = 450,
+              color = 'orange') %>%
+      layout(xaxis = list(title=list(text = "Medium Density States", standoff = 10)),
+             yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
+                          range = c(0,1000)))
+  })
 }
+    # p3 <- policyData %>%
+    #   filter(Converted_Date == input$Time) %>%
+    #   arrange(densityOrder) %>%
+    #   plot_ly(x = ~Province_State, 
+    #           y = ~dailyDeaths,
+    #           type = 'bar',
+    #           width = 800, 
+    #           height = 450) %>%
+    #   layout(xaxis = list(title=list(text = "State", standoff = 10)),
+    #          yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
+    #                       range = c(0,1000)))
+    # 
+  

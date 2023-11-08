@@ -65,9 +65,25 @@ ui <- fluidPage(
                                     min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
                                     value = as.Date("2020-04-13"), animate =
                                       animationOptions(interval = 250, loop = TRUE)),
+                        # Select variable for y-axis
+                        selectInput(
+                          inputId = "Index",
+                          label = "Index",
+                          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                          selected = "StringencyIndex"),
                 
                       mainPanel("Plot2",
-                           plotlyOutput("DeathsOverTimebyDensity")))
+                           plotlyOutput("DeathsOverTimebyDensityLow"),
+                           br(),
+                           br(),
+                           plotlyOutput("IndexOverTime"),
+                           br(),
+                           br(),
+                           plotlyOutput("DeathsOverTimebyDensityMedium"),
+                           br(),
+                           br(),
+                           plotlyOutput("DeathsOverTimebyDensityHigh")))
+                      
     )                  
   )         
 )
