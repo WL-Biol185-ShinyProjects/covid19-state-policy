@@ -66,6 +66,17 @@ function(input, output, session) {
 #   geom_point()
 # })
     
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
     ## TAB 3 Linked Plots Over Maps #########################################
     
 #  function getColor(d) {
@@ -80,51 +91,69 @@ function(input, output, session) {
 #  }
   
   
-  #converting tidy data table into a table that can be piped and added to the geojson:
-  #transposedData <- t(policyData)
-  
     # Setting up index in each state over time
   
-    output$indexMapPlot <-renderLeaflet({
-      leaflet() %>%
-        addProviderTiles(providers$maps,
-                         options = providerTileOptions(noWrap = TRUE)
-        ) %>%
-        
-    })
-  
-    #from whitwort chloropleth example repo  
-    geo <- geojson_read("../../Data/states.geo.json", what = "sp")
+
+    #from chloropleth example repo  
+    originalGeo <- geojson_read("../../Data/states.geo.json", what = "sp")
     
-    oneDayData <- filter(policyData, policyData$Converted_Date == as.Date(input$date))
+    oneDayData <- filter(policyData, policyData$Converted_Date == input$Date)
     
-    # geo@data <- left_join(geo@data, policyData, by = c("NAME" = "State"))
+    geo@data <- left_join(originalGeo@data, policyData, by = c("NAME" = "State"))
     
-    geo@data <- mutate(geo@data, value = sample(1:100, nrow(geo@data)))
+    geo@data <- mutate(geo@data, value = oneDayData, .by = c("NAME" = "State"), .keep = "all")
     
-    pal <- colorBin("YlOrRd", domain = geo@data$value)
+
     
     leaflet(geo) %>%
       addPolygons(fillColor = ~pal(value))
     
-    
-    
       indexMapPlotTitle <- paste(as.character(input$y), "Over Time")
+   
       
+      # Reactive expression for the data subsetted to what the user selected
+      filteredData <- reactive({
+        policyData[policyData$Date == input$Date,]
+      })   
       
+      output$indexMap <-renderLeaflet({
+        leaflet() %>%
+          addProviderTiles(providers$maps,
+                           options = providerTileOptions(noWrap = TRUE)
+          ) 
+          
+      })
+      
+      # observe({
+      #   
+      #   pal <- colorBin("YlOrRd", domain = geo@data$value)
+      #   
+      #   leafletProxy("indexMapPlot", data = filteredData()) %>%
+      #     clearShapes() %>%
+      # 
+      # })      
+      
+         
+ 
+
+
+
+
+#     
     # Setting up deaths over time in each state on map
       
       deathsMapPlotTitle <- paste("Daily Deaths Over Time")
       
-      
-    output$deathsMapPlot <- renderLealet({
-      
-      
-      mapStates = map("state", fill = TRUE, plot = FALSE)
-    leaflet(data = mapStates) %>% addTiles() %>%
-      addPolygons(fillColor = topo.colors(10, alpha = NULL), stroke = FALSE) 
-   
-    
-     )}
+    #   
+    # output$deathsMap <- renderLealet({
+    #   
+    #   
+    #   mapStates = map("state", fill = TRUE, plot = FALSE)
+    # leaflet(data = mapStates) %>% addTiles() %>%
+    #   addPolygons(fillColor = topo.colors(10, alpha = NULL), stroke = FALSE) 
+    # 
+    # 
+    #  )}
 
 }
+

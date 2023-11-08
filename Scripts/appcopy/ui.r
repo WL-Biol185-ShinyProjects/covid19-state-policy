@@ -66,7 +66,7 @@ ui <- fluidPage(
                          selected = "StringencyIndex"
                       ),
                        #Date Slider
-                      sliderInput("date", "Date", as.Date("2020-04-12"), as.Date("2022-12-31"), as.Date("2020-04-12"), step = NULL, round = FALSE,
+                      sliderInput("Date", "Date", min = as.Date("2020-04-12"), max = as.Date("2022-12-31"), value = as.Date("2020-04-12"), step = NULL, round = FALSE,
                                   ticks = FALSE,
                                   animate = animationOptions(interval = 200, loop = TRUE, playButton = NULL,
                                                                                                          pauseButton = NULL),
