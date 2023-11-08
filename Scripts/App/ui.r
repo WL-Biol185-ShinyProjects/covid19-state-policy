@@ -77,6 +77,8 @@ ui <- fluidPage(
                                   br(),
                                   fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityHigh')),
                                            column(6,plotlyOutput('IndexOverTimeHigh')))
+        )                       
+      )
     )                  
   )         
 )
