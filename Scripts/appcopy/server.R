@@ -94,20 +94,27 @@ function(input, output, session) {
     # Setting up index in each state over time
   
 
-    #from chloropleth example repo  
+  #from chloropleth example repo  
+  # Reactive expression for the data subsetted to what the user selected
     geo <- geojson_read("../../Data/states.geo.json", what = "sp")
     baseGeoData <- geo@data
     observe({
       dayData <- filter(policyData, policyData$Converted_Date == input$Date)
       
-      geo@data <- left_join(baseGeoData, dayData, by = c("NAME" = "State"))
+      geo@data <- left_join(baseGeoData, dayData)
       
     })
     
+    
 
     
-    leaflet(geo) %>%
-      addPolygons(fillColor = ~pal(value))
+    pal <- colorBin("YlOrRd", domain = geo@data$data)
+    
+    output$deathsMap <- leaflet(geo) %>%
+      addtiles()%>%
+    #  addPolygons(fillColor = ~pal(dailyDeaths))%>%
+      
+      leafletProxy(deathsMap, data = geo)
     
       indexMapPlotTitle <- paste(as.character(input$selectedIndex), "Over Time")
    
