@@ -56,12 +56,12 @@ ui <- fluidPage(
             ),
             
             tabPanel("Component 3",
-                     #Inputs: Date slider and Index
+                     #Inputs: Date slider and Index Options
                      sidebarPanel(
                        #Select Index
                        selectInput(
-                         inputId = "y",
-                         label = "Y-axis:",
+                         inputId = "selectedIndex",
+                         label = "Index: ",
                          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                          selected = "StringencyIndex"
                       ),

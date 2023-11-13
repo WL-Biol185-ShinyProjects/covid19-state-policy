@@ -95,34 +95,35 @@ function(input, output, session) {
   
 
     #from chloropleth example repo  
-    originalGeo <- geojson_read("../../Data/states.geo.json", what = "sp")
-    
-    oneDayData <- filter(policyData, policyData$Converted_Date == input$Date)
-    
-    geo@data <- left_join(originalGeo@data, policyData, by = c("NAME" = "State"))
-    
-    geo@data <- mutate(geo@data, value = oneDayData, .by = c("NAME" = "State"), .keep = "all")
+    geo <- geojson_read("../../Data/states.geo.json", what = "sp")
+    baseGeoData <- geo@data
+    observe({
+      dayData <- filter(policyData, policyData$Converted_Date == input$Date)
+      
+      geo@data <- left_join(baseGeoData, dayData, by = c("NAME" = "State"))
+      
+    })
     
 
     
     leaflet(geo) %>%
       addPolygons(fillColor = ~pal(value))
     
-      indexMapPlotTitle <- paste(as.character(input$y), "Over Time")
+      indexMapPlotTitle <- paste(as.character(input$selectedIndex), "Over Time")
    
       
       # Reactive expression for the data subsetted to what the user selected
-      filteredData <- reactive({
-        policyData[policyData$Date == input$Date,]
-      })   
-      
-      output$indexMap <-renderLeaflet({
-        leaflet() %>%
-          addProviderTiles(providers$maps,
-                           options = providerTileOptions(noWrap = TRUE)
-          ) 
-          
-      })
+      # filteredData <- reactive({
+      #   policyData[policyData$Date == input$Date,]
+      # })   
+      # 
+      # output$indexMap <-renderLeaflet({
+      #   leaflet() %>%
+      #     addProviderTiles(providers$maps,
+      #                      options = providerTileOptions(noWrap = TRUE)
+      #     ) 
+      #     
+      # })
       
       # observe({
       #   
