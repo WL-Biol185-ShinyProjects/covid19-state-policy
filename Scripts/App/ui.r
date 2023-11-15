@@ -3,6 +3,35 @@ library(plotly)
 file <- "../../Data/covid19_state_policy_tidydata.csv"
 policyData <- read.csv(file)
 
+lowDensityStates <- c(
+  'Alaska',
+  'Arizona',
+  'Arkansas',
+  'Colorado',
+  'Idaho',
+  'Iowa',
+  'Kansas',
+  'Kentucky',
+  'Louisiana',
+  'Maine',
+  'Minnesota',
+  'Mississippi',
+  'Montana',
+  'Nebraska',
+  'Nevada',
+  'New Mexico',
+  'North Dakota',
+  'Oklahoma',
+  'Oregon',
+  'South Dakota',
+  'Utah',
+  'Vermont',
+  'West Virginia',
+  'Wyoming'
+)
+
+
+
 # Define UI 
 
 ui <- fluidPage(
@@ -59,12 +88,21 @@ ui <- fluidPage(
                                       min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
                                       value = as.Date("2020-04-13"), animate =
                                       animationOptions(interval = 250, loop = TRUE)),
-                          # Select variable for y-axis
+                          # Input: Select Index
                           selectInput(
-                            inputId = "Index",
+                            inputId = "IndexTab2",
                             label = "Index",
                             choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                             selected = "StringencyIndex")),
+                        
+                          # Input: Select Low Density States
+                          selectInput(
+                            multiple = TRUE,
+                            inputId = "lowDensityStates",
+                            label = "Low Density States",
+                            choices = lowDensityStates,
+                            selected = lowDensityStates)),
+                        
                 
                         mainPanel("Plot2",
                                   fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityLow')),
@@ -81,5 +119,4 @@ ui <- fluidPage(
       )
     )                  
   )         
-)
 

@@ -60,6 +60,13 @@ function(input, output, session) {
   
   ## TAB 2 [Deaths Over Time by State; sorted by Density] ###########################################
   
+  policyDataLow <- reactive({
+      policyData %>%
+        filter(Province_State %in% input$selectedStates & Converted_Date == input$Time) 
+  })
+  
+  
+  
   output$DeathsOverTimebyDensityLow <- renderPlotly({
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
@@ -79,36 +86,36 @@ function(input, output, session) {
     policyData$Province_State <- factor(policyData$Province_State, levels = densityOrder)
     
     #Setting up low density states df
-    lowStates <- filter(densityData, densityData$class == "Low")
-    densityOrderLow <- intersect(densityOrder, lowStates$State)
-    policyDataLow <- policyData %>% 
-      filter(Province_State %in% lowStates$State)
-    
-    policyDataLow %>%
-      filter(Converted_Date == input$Time) %>%
-      arrange(densityOrderLow) %>%
-      plot_ly(x = ~Province_State, 
-              y = ~dailyDeaths,
-              type = 'bar',
-              width = 800, 
-              height = 450) %>%
-      layout(xaxis = list(title=list(text = "Low Density States", standoff = 10)),
-             yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
-                          range = c(0,1000)))
-    
+    lowStates <- filter(densityData, densityData$State %in% input$lowDensityStates)
+    lowStatesVector <- lowStates$State
+
+    # policyDataLow <- policyData %>%
+    #   filter(Province_State %in% lowStatesVector) %>%
+    #   filter(Converted_Date == input$Time)
+
+    plot_ly(data = policyDataLow,
+            x = ~Province_State, 
+            y = ~dailyDeaths,
+            type = 'bar',
+            width = 800, 
+            height = 450) %>%
+    layout(xaxis = list(title=list(text = "Low Density States", standoff = 10)),
+           yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
+                        range = c(0,250)))
   })
   
   output$IndexOverTimeLow <- renderPlotly({
     
     #Setting up low density states
     
-    lowStates <- filter(densityData, densityData$class == "Low")
+    lowStates <- filter(densityData, densityData$State %in% input$lowDensityStates)
+    lowStatesVector <- lowStates$State
     policyDataLow <- policyData %>%
-      filter(Province_State %in% lowStates$State) %>%
+      filter(Province_State %in% lowStatesVector) %>%
       filter(Converted_Date <= input$Time) %>%
       plot_ly(
         x = ~Converted_Date, 
-        y = as.formula(paste0('~', input$Index)),
+        y = as.formula(paste0('~', input$IndexTab2)),
         split = ~Province_State,
         # frame = ~frame,
         type = 'scatter',
@@ -116,26 +123,9 @@ function(input, output, session) {
         # line = list(color = "red")
       ) %>%
       layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
-             yaxis = list(title = "Index", range = c(0,100)))
+             yaxis = list(title = as.character(input$IndexTab2), range = c(0,100)))
     
   })
-  
-  ##WORK ON THIS NEXT
-  
-  observe({
-    plotlyProxy("IndexOverTimeLow", session) %>%
-      plotlyProxyInvoke(
-        "addTraces", 
-        list(
-          x = input$Time,
-          y = input$Index,
-          type = "scatter",
-          mode = "lines",
-          line = list(color = "red")
-        )
-      )
-    }
-  )
 
   output$DeathsOverTimebyDensityMedium <- renderPlotly({
     
@@ -172,7 +162,7 @@ function(input, output, session) {
               color = 'orange') %>%
       layout(xaxis = list(title=list(text = "Medium Density States", standoff = 10)),
              yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
-                          range = c(0,1000)))
+                          range = c(0,500)))
   })
   
   output$IndexOverTimeMedium <- renderPlotly({
@@ -185,7 +175,7 @@ function(input, output, session) {
       filter(Converted_Date <= input$Time) %>%
       plot_ly(
         x = ~Converted_Date, 
-        y = as.formula(paste0('~', input$Index)),
+        y = as.formula(paste0('~', input$IndexTab2)),
         split = ~Province_State,
         # frame = ~frame,
         type = 'scatter',
@@ -193,7 +183,7 @@ function(input, output, session) {
         # line = list(color = "red")
       ) %>%
       layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
-             yaxis = list(title = "Index", range = c(0,100)))
+             yaxis = list(title = as.character(input$IndexTab2), range = c(0,100)))
     
   })
   
@@ -244,7 +234,7 @@ function(input, output, session) {
     filter(Converted_Date <= input$Time) %>%
     plot_ly(
       x = ~Converted_Date, 
-      y = as.formula(paste0('~', input$Index)),
+      y = as.formula(paste0('~', input$IndexTab2)),
       split = ~Province_State,
       # frame = ~frame,
       type = 'scatter',
@@ -252,6 +242,45 @@ function(input, output, session) {
       # line = list(color = "red")
     ) %>%
     layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
-           yaxis = list(title = "Index", range = c(0,100)))
+           yaxis = list(title = as.character(input$IndexTab2), range = c(0,100)))
   })
+  
+  # Observer Block
+  
+  observe({
+    plotlyProxy("IndexOverTimeLow", session) %>%
+      plotlyProxyInvoke(
+        "addTraces", 
+        list(
+          x = input$Time,
+          y = input$Index,
+          type = "scatter",
+          mode = "lines",
+          line = list(color = "red")
+        )
+      )
+    plotlyProxy("IndexOverTimeMedium", session) %>%
+      plotlyProxyInvoke(
+        "addTraces",
+        list(
+          x = input$Time,
+          y = input$Index,
+          type = "scatter",
+          mode = "lines",
+          line = list(color = "red")
+          )
+        )
+    plotlyProxy("IndexOverTimeHigh", session) %>%
+      plotlyProxyInvoke(
+        "addTraces",
+        list(
+          x = input$Time,
+          y = input$Index,
+          type = "scatter",
+          mode = "lines",
+          line = list(color = "red")
+        )
+      )
+  }
+  )
 }
