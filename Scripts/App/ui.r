@@ -31,14 +31,50 @@ lowDensityStates <- c(
 )
 
 
+mediumDensityStates <- c(
+  'Alabama',
+  'California',
+  'Georgia',
+  'Hawaii',
+  'Illinois',
+  'Indiana',
+  'Kentucky',
+  'Louisiana',
+  'Michigan',
+  'Missouri',
+  'New Hampshire',
+  'North Carolina',
+  'South Carolina',
+  'Tennessee',
+  'Texas',
+  'Virginia',
+  'Washington',
+  'Wisconsin'
+)
+
+highDensityStates <- c(
+  'Connecticut',
+  'Delaware',
+  'District of Columbia',
+  'Florida',
+  'Maryland',
+  'Massachusetts',
+  'New Jersey',
+  'New York',
+  'Ohio',
+  'Pennsylvania',
+  'Rhode Island'
+)
+
+
 
 # Define UI 
 
 ui <- fluidPage(
   
   navbarPage("Covid-19 State Policy App",
-             tabPanel(
-               "Component 1",
+             
+             tabPanel("Component 1",
                  
                  # Inputs: Select variables to plot
                  sidebarPanel(
@@ -65,8 +101,7 @@ ui <- fluidPage(
                      choices = c(unique(policyData$Province_State)),
                      selected = "Alabama"
                    )
-                 ),
-              
+                   ),
                  
                  # Output: Show plots
                  mainPanel("Plot",
@@ -74,39 +109,61 @@ ui <- fluidPage(
                             br(),
                             br(),
                             plotOutput("deathsPlot")
-                  )
-                ),
-               
-             tabPanel("Component 2",
-                      
+                           )
+                 ),
+            tabPanel("Component 2",
+                     
+                     # CONSIDER USING CONDITONAL PANEL AND WELL PANEL FOR AESTHETIC AND USER INTERFACE
+
                       sidebarLayout(
                       # Sidebar to demonstrate slider option for time
                         sidebarPanel(
-                        
+
                         # Input: Simple time interval
                           sliderInput("Time", "Time:",
-                                      min = as.Date("2020-04-13"), max = as.Date("2022-12-31"),
-                                      value = as.Date("2020-04-13"), animate =
-                                      animationOptions(interval = 250, loop = TRUE)),
+                                      min = as.Date("2020-04-13"), 
+                                      max = as.Date("2022-12-31"),
+                                      value = as.Date("2020-04-13"), 
+                                      animate = animationOptions(interval = 250, loop = TRUE)),
                           # Input: Select Index
                           selectInput(
                             inputId = "IndexTab2",
                             label = "Index",
                             choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-                            selected = "StringencyIndex")),
-                        
+                            selected = "StringencyIndex"),
+
                           # Input: Select Low Density States
                           selectInput(
                             multiple = TRUE,
                             inputId = "lowDensityStates",
                             label = "Low Density States",
                             choices = lowDensityStates,
-                            selected = lowDensityStates)),
+                            selected = lowDensityStates),
+
+                          # Input: Select Medium Density States
+                          selectInput(
+                            multiple = TRUE,
+                            inputId = "mediumDensityStates",
+                            label = "Medium Density States",
+                            choices = mediumDensityStates,
+                            selected = mediumDensityStates),
+
+                          # Input: Select High Density States
+                          selectInput(
+                            multiple = TRUE,
+                            inputId = "highDensityStates",
+                            label = "High Density States",
+                            choices = highDensityStates,
+                            selected = highDensityStates)
+                          ),
                         
-                
                         mainPanel("Plot2",
-                                  fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityLow')),
-                                           column(6,plotlyOutput('IndexOverTimeLow'))),
+                                  fluidRow(
+                                    splitLayout(cellWidths = c("50%", "50%"),
+                                                       plotlyOutput(outputId = 'DeathsOverTimebyDensityLow',
+                                                                    width = "240px",
+                                                                    height = "480px"),
+                                                       plotlyOutput('IndexOverTimeLow'))),
                                   br(),
                                   br(),
                                   fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityMedium')),
@@ -115,8 +172,8 @@ ui <- fluidPage(
                                   br(),
                                   fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityHigh')),
                                            column(6,plotlyOutput('IndexOverTimeHigh')))
-        )                       
-      )
-    )                  
-  )         
-
+                        )
+                      )
+            )
+  )
+)

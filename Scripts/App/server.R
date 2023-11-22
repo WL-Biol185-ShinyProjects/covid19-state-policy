@@ -60,25 +60,25 @@ function(input, output, session) {
   
   ## TAB 2 [Deaths Over Time by State; sorted by Density] ###########################################
   
+  #LOW
+  
   policyDataLow <- reactive({
       policyData %>%
-        filter(Province_State %in% input$selectedStates & Converted_Date == input$Time) 
+        filter(Province_State %in% input$lowDensityStates & Converted_Date == input$Time) 
   })
-  
-  
   
   output$DeathsOverTimebyDensityLow <- renderPlotly({
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
      
-    if (input$Time <= as.Date("2020-07-01")){
-      densityData <- densityData[order(densityData$basePD),]
+    densityData <- if (input$Time <= as.Date("2020-07-01")){                                   #THIS NEEDS CORRECTION. ASSIGN THE VARIABLE OUTSIDE OF THE IF ELSE BLOCK
+      densityData[order(densityData$basePD),]
     }else if(input$Time <= as.Date("2021-07-01")){
-       densityData <- arrange(densityData, densityData$`2020PD`)
+      arrange(densityData, densityData$`2020PD`)
     }else if(input$Time <= as.Date("2022-07-01")){
-       densityData <- arrange(densityData, densityData$`2021PD`)
+      arrange(densityData, densityData$`2021PD`)
     } else{
-       densityData <- arrange(densityData, densityData$`2022PD`)
+      arrange(densityData, densityData$`2022PD`)
     }
      
     densityOrder <- densityData$State
@@ -89,44 +89,55 @@ function(input, output, session) {
     lowStates <- filter(densityData, densityData$State %in% input$lowDensityStates)
     lowStatesVector <- lowStates$State
 
-    # policyDataLow <- policyData %>%
-    #   filter(Province_State %in% lowStatesVector) %>%
-    #   filter(Converted_Date == input$Time)
-
-    plot_ly(data = policyDataLow,
+    plot_ly(data = policyDataLow(),
             x = ~Province_State, 
             y = ~dailyDeaths,
             type = 'bar',
             width = 800, 
             height = 450) %>%
-    layout(xaxis = list(title=list(text = "Low Density States", standoff = 10)),
-           yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
-                        range = c(0,250)))
+      layout(xaxis = list(title = input$lowDensityStates),
+             yaxis = list(title =list(text = 'Daily Deaths', standoff = 10), 
+             range = c(0,250)))
+  })
+  
+  policyDataLowIndex <- reactive({
+    policyData %>%
+      filter(Province_State %in% input$lowDensityStates & Converted_Date <= input$Time) 
   })
   
   output$IndexOverTimeLow <- renderPlotly({
     
     #Setting up low density states
     
-    lowStates <- filter(densityData, densityData$State %in% input$lowDensityStates)
-    lowStatesVector <- lowStates$State
-    policyDataLow <- policyData %>%
-      filter(Province_State %in% lowStatesVector) %>%
-      filter(Converted_Date <= input$Time) %>%
-      plot_ly(
-        x = ~Converted_Date, 
-        y = as.formula(paste0('~', input$IndexTab2)),
-        split = ~Province_State,
-        # frame = ~frame,
-        type = 'scatter',
-        mode = 'lines'
-        # line = list(color = "red")
+    # lowStates <- filter(densityData, densityData$State %in% input$lowDensityStates)
+    # lowStatesVector <- lowStates$State
+    # 
+    # 
+    # 
+    # policyDataLow <- policyData %>%
+    #   filter(Province_State %in% lowStatesVector) %>%
+    #   filter(Converted_Date <= input$Time) %>%
+      
+    plot_ly(
+      data = policyDataLowIndex(),
+      x = ~Converted_Date, 
+      y = as.formula(paste0('~',input$IndexTab2)),
+      split = ~Province_State,
+      type = 'scatter',
+      mode = 'lines'
       ) %>%
       layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
              yaxis = list(title = as.character(input$IndexTab2), range = c(0,100)))
     
   })
-
+  
+  # MEDIUM
+  
+  policyDataMedium <- reactive({
+    policyData %>%
+      filter(Province_State %in% input$mediumDensityStates & Converted_Date == input$Time) 
+  })
+  
   output$DeathsOverTimebyDensityMedium <- renderPlotly({
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
@@ -145,47 +156,63 @@ function(input, output, session) {
     
     policyData$Province_State <- factor(policyData$Province_State, levels = densityOrder)
     
-    #Setting up medium density states df
-    mediumStates <- filter(densityData, densityData$class == "Medium")
-    densityOrderMedium <- intersect(densityOrder, mediumStates$State)
-    policyDataMedium <- policyData %>% 
-      filter(Province_State %in% mediumStates$State)
-    
-    policyDataMedium %>%
-      filter(Converted_Date == input$Time) %>%
-      arrange(densityOrderMedium) %>%
-      plot_ly(x = ~Province_State, 
-              y = ~dailyDeaths,
-              type = 'bar',
-              width = 800, 
-              height = 450,
-              color = 'orange') %>%
-      layout(xaxis = list(title=list(text = "Medium Density States", standoff = 10)),
-             yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
+    #Setting up medium density states plot
+
+    plot_ly(data = policyDataMedium(),
+            x = ~Province_State,
+            y = ~dailyDeaths,
+            type = 'bar',
+            width = 800,
+            height = 450,
+            color = 'orange') %>%
+      layout(xaxis = list(title = input$mediumDensityStates),
+             yaxis = list(title =list(text = 'Daily Deaths', standoff = 10),
                           range = c(0,500)))
+
+  
+  #   #Setting up medium density states df
+  #   mediumStates <- filter(densityData, densityData$class == "Medium")
+  #   densityOrderMedium <- intersect(densityOrder, mediumStates$State)
+  #   policyDataMedium <- policyData %>% 
+  #     filter(Province_State %in% mediumStates$State)
+  #   
+  #   policyDataMedium %>%
+  #     filter(Converted_Date == input$Time) %>%
+  #     arrange(densityOrderMedium) %>%
+  #     plot_ly(x = ~Province_State, 
+  #             y = ~dailyDeaths,
+  #             type = 'bar',
+  #             width = 800, 
+  #             height = 450,
+  #             color = 'orange') %>%
+  #     layout(xaxis = list(title=list(text = "Medium Density States", standoff = 10)),
+  #            yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
+  #                         range = c(0,500)))
+  })
+  
+  policyDataMediumIndex <- reactive({
+    policyData %>%
+      filter(Province_State %in% input$mediumDensityStates & Converted_Date <= input$Time) 
   })
   
   output$IndexOverTimeMedium <- renderPlotly({
     
-    #Setting up medium density states
+    #Setting up medium density states index
     
-    mediumStates <- filter(densityData, densityData$class == "Medium")
-    policyDataLow <- policyData %>%
-      filter(Province_State %in% mediumStates$State) %>%
-      filter(Converted_Date <= input$Time) %>%
-      plot_ly(
-        x = ~Converted_Date, 
-        y = as.formula(paste0('~', input$IndexTab2)),
-        split = ~Province_State,
-        # frame = ~frame,
-        type = 'scatter',
-        mode = 'lines'
-        # line = list(color = "red")
-      ) %>%
+    plot_ly(
+      data = policyDataMediumIndex(),
+      x = ~Converted_Date, 
+      y = as.formula(paste0('~',input$IndexTab2)),
+      split = ~Province_State,
+      type = 'scatter',
+      mode = 'lines'
+    ) %>%
       layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
              yaxis = list(title = as.character(input$IndexTab2), range = c(0,100)))
     
   })
+  
+  # HIGH
   
   output$DeathsOverTimebyDensityHigh <- renderPlotly({
     
