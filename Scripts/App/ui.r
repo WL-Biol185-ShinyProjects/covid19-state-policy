@@ -75,7 +75,7 @@ ui <- fluidPage(
   navbarPage("Covid-19 State Policy App",
              
              tabPanel("Component 1",
-                 
+                      
                  # Inputs: Select variables to plot
                  sidebarPanel(
                    
@@ -114,7 +114,9 @@ ui <- fluidPage(
             tabPanel("Component 2",
                      
                      # CONSIDER USING CONDITONAL PANEL AND WELL PANEL FOR AESTHETIC AND USER INTERFACE
-
+                     
+                     wellPanel(
+                       
                       sidebarLayout(
                       # Sidebar to demonstrate slider option for time
                         sidebarPanel(
@@ -154,8 +156,7 @@ ui <- fluidPage(
                             inputId = "highDensityStates",
                             label = "High Density States",
                             choices = highDensityStates,
-                            selected = highDensityStates)
-                          ),
+                            selected = highDensityStates)),
                         
                         mainPanel("Plot2",
                                   fluidRow(
@@ -166,14 +167,20 @@ ui <- fluidPage(
                                                        plotlyOutput('IndexOverTimeLow'))),
                                   br(),
                                   br(),
-                                  fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityMedium')),
-                                           column(6,plotlyOutput('IndexOverTimeMedium'))),
+                                  fluidRow(
+                                    splitLayout(cellWidths = c("50%", "50%"),
+                                                plotlyOutput(outputId = 'DeathsOverTimebyDensityMedium',
+                                                             width = "240px",
+                                                             height = "480px"),
+                                                plotlyOutput('IndexOverTimeMedium'))),
                                   br(),
                                   br(),
-                                  fluidRow(column(6,plotlyOutput('DeathsOverTimebyDensityHigh')),
-                                           column(6,plotlyOutput('IndexOverTimeHigh')))
-                        )
-                      )
-            )
+                                  fluidRow(
+                                    splitLayout(cellWidths = c("50%", "50%"),
+                                                plotlyOutput('DeathsOverTimebyDensityHigh'),
+                                                plotlyOutput('IndexOverTimeHigh'))))
+        )
+      )
+    )
   )
 )
