@@ -2,6 +2,7 @@ library(ggplot2)
 library(tidyverse)
 library(plotly)
 library(purrr)
+library(corrplot)
 
 # Define server 
 file1 <- "../../Data/covid19_state_policy_tidydata.csv"
@@ -277,8 +278,7 @@ function(input, output, session) {
       )
   })
   
-  ## TAB 2 [###############################] ###########################################
-  
+  ## TAB 3 [###############################] ###########################################
   
   output$indexStackedPlot <- renderPlot({
     
@@ -323,6 +323,68 @@ function(input, output, session) {
            y = "States",
            fill= paste(as.character(input$StackedIndex)))+
       theme(plot.title = element_text(hjust = 0.5, size = 22))
+  })
+  
+  ## TAB 4 [###############################] ###########################################
+  
+  output$stateMatrixPlot <- renderPlot({
+    
+    # Plot Title
+    stateMatrixPlotTitle <- paste(as.character(input$stateForMatrix), 
+                                   "Correlation Matrix")
+    
+    # Collapse Table on Index Duration > 60
+    indexDuration <- policyData %>%
+      group_by(Province_State) %>%
+      summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
+      arrange(desc(indexDurationVector))
+    
+    # Obtain Duration Vector
+    stateVector <- indexDuration$Province_State
+    
+    # Color scale for index levels
+    color_scale <- c("<20" = "#fcfdbf", 
+                     "20-40" = "#fc8961", 
+                     "40-60" = "#b73779", 
+                     "60-80" = "#51127c", 
+                     "80-100" = "#000004")
+    
+    # Breaks and labels for legend
+    indexBreaks <- c(0, 20, 40, 60, 80, 100)
+    indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
+    
+    # Reorder States by State Vector
+    policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
+    
+    # Plot output
+    
+    matrixData <- policyData %>%
+      filter(Province_State == as.character(input$stateForMatrix))
+    
+    matrixData <- subset(matrixData, select = c(StringencyIndex,
+                               ContainmentHealthIndex,
+                               GovernmentResponseIndex,
+                               EconomicSupportIndex,
+                               Incident_Rate,
+                               dailyDeaths,
+                               Case_Fatality_Ratio
+                               ))
+    
+    M <- cor(matrixData, use="pairwise.complete.obs")
+    
+    if (input$colorDisplay) {
+      corrplot(M, method = 'number',
+               addCoef.col = 'black',
+               tl.col = 'black',
+               diag = FALSE) # numeric
+      } else {
+      # If the switch is OFF, don't render the plot
+        corrplot(M, method = 'shade',
+                 # addCoef.col = 'black',
+                 tl.col = 'black',
+                 diag = FALSE) # colorful number  
+    }
+    
   })
   
 }

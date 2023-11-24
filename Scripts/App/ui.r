@@ -1,4 +1,5 @@
 library(plotly)
+library(shinyWidgets)
 
 file <- "../../Data/covid19_state_policy_tidydata.csv"
 policyData <- read.csv(file)
@@ -215,8 +216,30 @@ ui <- fluidPage(
                      # Output: Show plots
                      mainPanel("Plot 3",
                                plotOutput("indexStackedPlot",
-                                          height = "720px")
+                                          height = "640px")
                                )
+                     ),
+            tabPanel("Component 4",
+                     
+                     # Inputs: Select variables to plot
+                     sidebarPanel(
+                       
+                       # Select input for switch
+                       switchInput(inputId = "colorDisplay",
+                                   onLabel = "Color",
+                                   offLabel = "Numeric"),
+                       
+                       # Select state for input
+                       selectInput(inputId = "stateForMatrix",
+                                   label = "Select State:",
+                                   choices = c(lowDensityStates, mediumDensityStates, highDensityStates),
+                                   selected = "Alaska")),
+                     mainPanel("Plot 4",
+                               plotOutput("stateMatrixPlot",
+                                          width = "640",
+                                          height = "640")
+                       
+                     )
                      )
             )
   )
