@@ -71,7 +71,7 @@ function(input, output, session) {
     
     deathsDensityPlotTitle <- paste("Daily Deaths Over Time by State sorted by Density")
      
-    densityData <- if (input$Time <= as.Date("2020-07-01")){                                   #THIS NEEDS CORRECTION. ASSIGN THE VARIABLE OUTSIDE OF THE IF ELSE BLOCK
+    densityData <- if (input$Time <= as.Date("2020-07-01")){                                   
       densityData[order(densityData$basePD),]
     }else if(input$Time <= as.Date("2021-07-01")){
       arrange(densityData, densityData$`2020PD`)
@@ -107,17 +107,6 @@ function(input, output, session) {
   
   output$IndexOverTimeLow <- renderPlotly({
     
-    #Setting up low density states
-    
-    # lowStates <- filter(densityData, densityData$State %in% input$lowDensityStates)
-    # lowStatesVector <- lowStates$State
-    # 
-    # 
-    # 
-    # policyDataLow <- policyData %>%
-    #   filter(Province_State %in% lowStatesVector) %>%
-    #   filter(Converted_Date <= input$Time) %>%
-      
     plot_ly(
       data = policyDataLowIndex(),
       x = ~Converted_Date, 
@@ -168,26 +157,6 @@ function(input, output, session) {
       layout(xaxis = list(title = input$mediumDensityStates),
              yaxis = list(title =list(text = 'Daily Deaths', standoff = 10),
                           range = c(0,500)))
-
-  
-  #   #Setting up medium density states df
-  #   mediumStates <- filter(densityData, densityData$class == "Medium")
-  #   densityOrderMedium <- intersect(densityOrder, mediumStates$State)
-  #   policyDataMedium <- policyData %>% 
-  #     filter(Province_State %in% mediumStates$State)
-  #   
-  #   policyDataMedium %>%
-  #     filter(Converted_Date == input$Time) %>%
-  #     arrange(densityOrderMedium) %>%
-  #     plot_ly(x = ~Province_State, 
-  #             y = ~dailyDeaths,
-  #             type = 'bar',
-  #             width = 800, 
-  #             height = 450,
-  #             color = 'orange') %>%
-  #     layout(xaxis = list(title=list(text = "Medium Density States", standoff = 10)),
-  #            yaxis = list(title=list(text = 'Daily Deaths', standoff = 10), 
-  #                         range = c(0,500)))
   })
   
   policyDataMediumIndex <- reactive({
@@ -263,10 +232,8 @@ function(input, output, session) {
       x = ~Converted_Date, 
       y = as.formula(paste0('~', input$IndexTab2)),
       split = ~Province_State,
-      # frame = ~frame,
       type = 'scatter',
       mode = 'lines'
-      # line = list(color = "red")
     ) %>%
     layout(xaxis = list(title = "Time", range = c(as.Date("2020-04-12"), as.Date("2022-12-31"))),
            yaxis = list(title = as.character(input$IndexTab2), range = c(0,100)))
@@ -308,6 +275,54 @@ function(input, output, session) {
           line = list(color = "red")
         )
       )
-  }
-  )
+  })
+  
+  ## TAB 2 [###############################] ###########################################
+  
+  
+  output$indexStackedPlot <- renderPlot({
+    
+    # Plot Title
+    indexStackedPlotTitle <- paste("Time Periods States spent under", 
+                                   as.character(input$StackedIndex), 
+                                   "(Source: OxCRGT)")
+    
+    # Collapse Table on Index Duration > 60
+    indexDuration <- policyData %>%
+      group_by(Province_State) %>%
+      summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
+      arrange(desc(indexDurationVector))
+    
+    # Obtain Duration Vector
+    stateVector <- indexDuration$Province_State
+    
+    # Color scale for index levels
+    color_scale <- c("<20" = "#fcfdbf", 
+                     "20-40" = "#fc8961", 
+                     "40-60" = "#b73779", 
+                     "60-80" = "#51127c", 
+                     "80-100" = "#000004")
+    
+    # Breaks and labels for legend
+    indexBreaks <- c(0, 20, 40, 60, 80, 100)
+    indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
+    
+    # Reorder States by State Vector
+    policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
+    
+    # Plot output
+    ggplot(policyData, aes(x = Converted_Date,
+                 y = Province_State,
+                 fill = cut(.data[[input$StackedIndex]],
+                            breaks = indexBreaks,
+                            labels = indexLabels))) +
+      geom_tile()+
+      scale_fill_manual(values = color_scale, na.value = "white")+
+      ggtitle(indexStackedPlotTitle)+
+      labs(x = "Time", 
+           y = "States",
+           fill= paste(as.character(input$StackedIndex)))+
+      theme(plot.title = element_text(hjust = 0.5, size = 22))
+  })
+  
 }

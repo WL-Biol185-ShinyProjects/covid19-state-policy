@@ -196,6 +196,27 @@ ui <- fluidPage(
                            )
                          )
                        )
+                     ),
+            
+            tabPanel("Component 3",
+                     
+                     # Inputs: Select variables to plot
+                     sidebarPanel(
+                       
+                       # Select variable for y-axis
+                       selectInput(
+                         inputId = "StackedIndex",
+                         label = "Index:",
+                         choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                         selected = "StringencyIndex"
+                       )),
+                     
+                     
+                     # Output: Show plots
+                     mainPanel("Plot 3",
+                               plotOutput("indexStackedPlot",
+                                          height = "720px")
+                               )
                      )
             )
   )
