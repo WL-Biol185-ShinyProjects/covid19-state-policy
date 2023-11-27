@@ -1,5 +1,6 @@
 library(plotly)
 library(shinyWidgets)
+library(shinythemes)
 
 file <- "../../Data/covid19_state_policy_tidydata.csv"
 policyData <- read.csv(file)
@@ -71,7 +72,7 @@ highDensityStates <- c(
 
 # Define UI 
 
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("superhero"),
   
   navbarPage("Covid-19 State Policy Analysis",
              
@@ -87,29 +88,33 @@ ui <- fluidPage(
                      choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                      selected = "StringencyIndex"
                    ),
-                   # Select variable for x-axis
-                   selectInput(
-                     inputId = "x",
-                     label = "X-axis:",
-                     choices = c("Converted_Date"),
-                     selected = "Converted_Date"
-                   ),
+                   # # Select variable for x-axis
+                   # selectInput(
+                   #   inputId = "x",
+                   #   label = "X-axis:",
+                   #   choices = c("Converted_Date"),
+                   #   selected = "Converted_Date"
+                   # ),
                    
                    # Select State to filter by
                    selectInput(
                      inputId = "State",
-                     label = "Province_State:",
+                     label = "State:",
                      choices = c(unique(policyData$Province_State)),
-                     selected = "Alabama")
+                     selected = "Alabama"),
+                   # imageOutput("stateIcon",
+                   #             width = "50%",
+                   #             height = "40px")
                    ),
+                   
                  
                  # Output: Show plots
-                 mainPanel("Plot",
-                            plotOutput("indexPlot"),
-                            br(),
-                            br(),
-                            plotOutput("deathsPlot")
-                           )
+                 mainPanel(
+                   plotOutput("indexPlot"),
+                   br(),
+                   br(),
+                   plotOutput("deathsPlot")
+                   )
                  ),
             tabPanel("Cross-Sectional",
                      
@@ -174,13 +179,14 @@ ui <- fluidPage(
                                choices = highDensityStates,
                                selected = highDensityStates))),
                            
-                           mainPanel("Plot2",
+                           mainPanel(
                                      fluidRow(
                                        splitLayout(cellWidths = c("50%", "50%"),
                                                    plotlyOutput(outputId = 'DeathsOverTimebyDensityLow',
                                                                 width = "240px",
                                                                 height = "480px"),
-                                                   plotlyOutput('IndexOverTimeLow'))),
+                                                   plotlyOutput('IndexOverTimeLow',
+                                                                height = "455px"))),
                                      br(),
                                      br(),
                                      fluidRow(
@@ -188,7 +194,8 @@ ui <- fluidPage(
                                                    plotlyOutput(outputId = 'DeathsOverTimebyDensityMedium',
                                                                 width = "240px",
                                                                 height = "480px"),
-                                                   plotlyOutput('IndexOverTimeMedium'))),
+                                                   plotlyOutput('IndexOverTimeMedium',
+                                                                height = "450px"))),
                                      br(),
                                      br(),
                                      fluidRow(
@@ -196,7 +203,8 @@ ui <- fluidPage(
                                                    plotlyOutput('DeathsOverTimebyDensityHigh',
                                                                 width = "240px",
                                                                 height = "480px"),
-                                                   plotlyOutput('IndexOverTimeHigh')))
+                                                   plotlyOutput('IndexOverTimeHigh',
+                                                                height = "450px")))
                            )
                          )
                        )
@@ -217,7 +225,7 @@ ui <- fluidPage(
                      
                      
                      # Output: Show plots
-                     mainPanel("Plot 3",
+                     mainPanel(
                                plotOutput("indexStackedPlot",
                                           height = "640px")
                                )
@@ -237,7 +245,7 @@ ui <- fluidPage(
                                    label = "Select State:",
                                    choices = c(lowDensityStates, mediumDensityStates, highDensityStates),
                                    selected = "Alaska")),
-                     mainPanel("Plot 4",
+                     mainPanel(
                                plotOutput("stateMatrixPlot",
                                           width = "640",
                                           height = "640")

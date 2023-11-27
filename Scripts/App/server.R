@@ -10,12 +10,44 @@ policyData <- read.csv(file1)
 policyData$Converted_Date <- as.Date(policyData$Converted_Date)
 
 file2 <- "../../Data/state-population-density-data.csv"
+file3 <- "../../Data/stateIcons/"
 densityData <- read.csv(file2)
 
 
 function(input, output, session) {
   
-  ## TAB 1 [Insert tab title here] ###########################################
+  observeEvent(once = TRUE,ignoreNULL = FALSE, ignoreInit = FALSE, eventExpr = input$click, { 
+    
+    showModal(modalDialog(
+      title = "Welcome Page", 
+      h1('Covid-19 US State Policy Analysis App', align = "center"),
+      p("Authors: Sanil Partha '26 & Sarp Sahin '26", align = "center"),
+      p("
+        
+        
+        
+        
+        
+        Short credit for media use (CC BY 4.0 License): Oxford COVID-19 Government Response Tracker, Blavatnik School of Government, University of Oxford.")
+    ))
+  })
+  
+  ## TAB 1 [Time Series] ###########################################
+  
+  # output$stateIcon <- renderImage({
+  #   
+  #   state <- input$State
+  #   picFilepath <- paste(file3, state,'.jpg', sep='')
+  #   
+  #   return(list(
+  #     src=picFilepath,
+  #     contentType = 'image/jpg',
+  #     alt = 'State',
+  #     width = "200",
+  #     height = "300"
+  #   ))
+  # })
+  # 
   
   output$indexPlot <- renderPlot({
   
@@ -23,7 +55,7 @@ function(input, output, session) {
 
     policyData %>%
       filter(Province_State == input$State) %>%
-      ggplot(aes_string(input$x, input$Index, group = 1)) +
+      ggplot(aes_string("Converted_Date", input$Index, group = 1)) +
       geom_point(color='red', fill = 'red', size=1, alpha = 0.5) +
       geom_smooth(color = 'blue') +
       scale_x_date(date_labels="%b %d %Y", 
@@ -42,7 +74,7 @@ function(input, output, session) {
   
     policyData %>%
       filter(Province_State == input$State) %>%
-      ggplot(aes_string(input$x, 
+      ggplot(aes_string("Converted_Date", 
                         "dailyDeaths", 
                         group = 1)) +
       geom_point(color='red', fill = 'red', size=1, alpha = 0.7) +
@@ -59,7 +91,7 @@ function(input, output, session) {
     
   })
   
-  ## TAB 2 [Deaths Over Time by State; sorted by Density] ###########################################
+  ## TAB 2 [Cross-Sectional] ###########################################
   
   #LOW
   
@@ -307,7 +339,7 @@ function(input, output, session) {
       )
   })
   
-  ## TAB 3 [###############################] ###########################################
+  ## TAB 3 [Policy Response Summary] ###########################################
   
   output$indexStackedPlot <- renderPlot({
     
@@ -354,7 +386,7 @@ function(input, output, session) {
       theme(plot.title = element_text(hjust = 0.5, size = 22))
   })
   
-  ## TAB 4 [###############################] ###########################################
+  ## TAB 4 [Correlation Matrix] ###########################################
   
   output$stateMatrixPlot <- renderPlot({
     
@@ -400,16 +432,21 @@ function(input, output, session) {
                                ))
     
     M <- cor(matrixData, use="pairwise.complete.obs")
+    testRes = cor.mtest(M, conf.level = 0.95)
+    
     
     if (input$colorDisplay) {
       corrplot(M, method = 'number',
-               addCoef.col = 'black',
+               addCoef.col = "grey50",
                tl.col = 'black',
                diag = FALSE) # numeric
       } else {
       # If the switch is OFF, don't render the plot
-        corrplot(M, method = 'shade',
-                 # addCoef.col = 'black',
+        corrplot(M, 
+                 p.mat = testRes$p,
+                 method = 'color',
+                 sig.level = c(0.001, 0.01, 0.05), pch.cex = 2,
+                 insig = 'label_sig', pch.col = 'white',
                  tl.col = 'black',
                  diag = FALSE) # colorful number  
     }
