@@ -73,9 +73,9 @@ highDensityStates <- c(
 
 ui <- fluidPage(
   
-  navbarPage("Covid-19 State Policy App",
+  navbarPage("Covid-19 State Policy Analysis",
              
-             tabPanel("Component 1",
+             tabPanel("Time Series",
                       
                  # Inputs: Select variables to plot
                  sidebarPanel(
@@ -111,7 +111,7 @@ ui <- fluidPage(
                             plotOutput("deathsPlot")
                            )
                  ),
-            tabPanel("Component 2",
+            tabPanel("Cross-Sectional",
                      
                      # CONSIDER USING CONDITONAL PANEL AND WELL PANEL FOR AESTHETIC AND USER INTERFACE
                      
@@ -120,7 +120,8 @@ ui <- fluidPage(
                          # Sidebar to demonstrate slider option for time
                          sidebarPanel(
                            checkboxGroupInput("plotType", "Density Categories:",
-                                      c("Low Density", "Medium Density", "High Density")
+                                      c("Low Density", "Medium Density", "High Density"),
+                                      selected = "Low Density"
                                       ),
                            
                            # Input: Simple time interval
@@ -192,14 +193,16 @@ ui <- fluidPage(
                                      br(),
                                      fluidRow(
                                        splitLayout(cellWidths = c("50%", "50%"),
-                                                   plotlyOutput('DeathsOverTimebyDensityHigh'),
+                                                   plotlyOutput('DeathsOverTimebyDensityHigh',
+                                                                width = "240px",
+                                                                height = "480px"),
                                                    plotlyOutput('IndexOverTimeHigh')))
                            )
                          )
                        )
                      ),
             
-            tabPanel("Component 3",
+            tabPanel("Policy Response Summary",
                      
                      # Inputs: Select variables to plot
                      sidebarPanel(
@@ -219,7 +222,7 @@ ui <- fluidPage(
                                           height = "640px")
                                )
                      ),
-            tabPanel("Component 4",
+            tabPanel("Correlation Matrix",
                      
                      # Inputs: Select variables to plot
                      sidebarPanel(
