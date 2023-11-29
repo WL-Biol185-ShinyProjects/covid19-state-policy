@@ -88,13 +88,6 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                      selected = "StringencyIndex"
                    ),
-                   # # Select variable for x-axis
-                   # selectInput(
-                   #   inputId = "x",
-                   #   label = "X-axis:",
-                   #   choices = c("Converted_Date"),
-                   #   selected = "Converted_Date"
-                   # ),
                    
                    # Select State to filter by
                    selectInput(
@@ -102,16 +95,29 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      label = "State:",
                      choices = c(unique(policyData$Province_State)),
                      selected = "Alabama"),
-                   # imageOutput("stateIcon",
-                   #             width = "50%",
-                   #             height = "40px")
+                   p("This linked plot enables users to compare
+                     trends in state policy response and mortalities
+                     across the period of data collection. Users
+                     may select from the states and the computed 
+                     OxCGRT indeces (range 0-100)."),
+                   p("Description of the Policy Indeces (Source: OxCRGT):"),
+                   p("1. A containment and health index, showing how many and how forceful the measures to
+                   contain the virus and protect citizen health are (this combines ‘lockdown’ restrictions and
+                   closures with health measures such as testing policy and contact tracing)"),
+                   p("2. An economic support index, showing how much economic support has been made
+                   available (such as income support and debt relief)"),
+                   p("3. A stringency index, which records the strictness of ‘lockdown style’ closure and
+                     containment policies that primarily restrict people’s behavior"),
+                   p("4. An overall government response index which records how the response of states has
+                     varied over all indicators, capturing the full range of government responses")
                    ),
                    
                  
                  # Output: Show plots
                  mainPanel(
+                   h1("Time Series"),
                    plotOutput("indexPlot"),
-                   br(),
+                   br(),                                                                                                                                                                                                                                                     
                    br(),
                    plotOutput("deathsPlot")
                    )
@@ -179,7 +185,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                choices = highDensityStates,
                                selected = highDensityStates))),
                            
-                           mainPanel(
+                           mainPanel(h1("Cross Sectional"),
                                      fluidRow(
                                        splitLayout(cellWidths = c("50%", "50%"),
                                                    plotlyOutput(outputId = 'DeathsOverTimebyDensityLow',
@@ -221,13 +227,18 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          label = "Index:",
                          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                          selected = "StringencyIndex"
-                       )),
+                       ),
+                       p("This visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
+                       Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
+                       be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above.")
+                       ),
                      
                      
                      # Output: Show plots
-                     mainPanel(
+                     mainPanel(h1("Policy Response Summary"),
                                plotOutput("indexStackedPlot",
-                                          height = "640px")
+                                          height = "640px"),
+                               p("Source: Oxford Covid-19 Government Response Tracker", align = "center")
                                )
                      ),
             tabPanel("Correlation Matrix",
@@ -236,6 +247,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      sidebarPanel(
                        
                        # Select input for switch
+                       p("Color / Numeric View:"),
                        switchInput(inputId = "colorDisplay",
                                    onLabel = "Color",
                                    offLabel = "Numeric"),
@@ -244,11 +256,17 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                        selectInput(inputId = "stateForMatrix",
                                    label = "Select State:",
                                    choices = c(lowDensityStates, mediumDensityStates, highDensityStates),
-                                   selected = "Alaska")),
-                     mainPanel(
+                                   selected = "Alaska"),
+                       p("This visualization helps users explore the significance of the relationships
+                         between state policy responses and mortality outcomes for the given period
+                         of data collection. Correlations were computed by corrplot with a alpha
+                         threshold of 0.05.")
+                       ),
+                     mainPanel(h1("Correlation Matrix"),
                                plotOutput("stateMatrixPlot",
                                           width = "640",
-                                          height = "640")
+                                          height = "640"),
+                               p("Note: * - p < 0.05; ** - p < 0.01; *** - p < 0.001")
                        
                      )
                      )
