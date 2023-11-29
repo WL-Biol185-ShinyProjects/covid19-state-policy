@@ -241,6 +241,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                p("Source: Oxford Covid-19 Government Response Tracker", align = "center")
                                )
                      ),
+            
             tabPanel("Correlation Matrix",
                      
                      # Inputs: Select variables to plot
