@@ -22,13 +22,14 @@ function(input, output, session) {
       title = "Welcome Page", 
       h1('Covid-19 US State Policy Analysis App', align = "center"),
       p("Authors: Sanil Partha '26 & Sarp Sahin '26", align = "center"),
-      p("
-        
-        
-        
-        
-        
-        Short credit for media use (CC BY 4.0 License): Oxford COVID-19 Government Response Tracker, Blavatnik School of Government, University of Oxford.")
+      p(" Using OxCGRT indicators and indices, we visualized variation in US state 
+      policy responses to the Covid-19 pandemic from April 2020 to December 2022. We 
+      subsequently compared OxCGRT indices alongside case-fatality data from the JHU 
+      Covid-19 Data Repository to evaluate the effectiveness of policy-driven response
+        on Covid-19 related mortalities."),
+      p("References:"),
+      p("1. Oxford COVID-19 Government Response Tracker, Blavatnik School of Government, University of Oxford, https://github.com/OxCGRT/covid-policy-tracker."),
+      p("2. COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University, https://github.com/CSSEGISandData/COVID-19")
     ))
   })
   
@@ -383,7 +384,8 @@ function(input, output, session) {
       labs(x = "Time", 
            y = "States",
            fill= paste(as.character(input$StackedIndex)))+
-      theme(plot.title = element_text(hjust = 0.5, size = 22))
+      theme(plot.title = element_text(hjust = 0.5, size = 22),
+            axis.text=element_text(size=11))
   })
   
   ## TAB 4 [Correlation Matrix] ###########################################
@@ -439,6 +441,8 @@ function(input, output, session) {
       corrplot(M, method = 'number',
                addCoef.col = "grey50",
                tl.col = 'black',
+               order = "hclust", 
+               addrect = 2,
                diag = FALSE) # numeric
       } else {
       # If the switch is OFF, don't render the plot
