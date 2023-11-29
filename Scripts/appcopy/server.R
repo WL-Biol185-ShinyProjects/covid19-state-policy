@@ -4,12 +4,18 @@ library(maps)
 library(leaflet)
 library(geojsonio)
 library(shiny)
+library(readr)
+library(dplyr)
 
 # Define server 
 file <- "../../Data/covid19_state_policy_tidydata.csv"
+
+setwd("/home/parthas25@ad.wlu.edu/covid19-state-policy/Scripts/appcopy")
+
 policyData <- read.csv(file)
 policyData$Converted_Date <- as.Date(policyData$Converted_Date)
 
+#print(getwd())
 
 
 
@@ -97,11 +103,34 @@ function(input, output, session) {
   #from chloropleth example repo  
   # Reactive expression for the data subsetted to what the user selected
     geo <- geojson_read("../../Data/states.geo.json", what = "sp")
-    baseGeoData <- geo@data
+
+    deathsGeo <- geo
+    indexGeo <- geo
+    
+    
+    #observer block updating spatial file for deaths map with data for selected day on input slider
+   
     observe({
-      dayData <- filter(policyData, policyData$Converted_Date == input$Date)
+      dayDeathsData <- filter(policyData[,c("Province_State", "dailyDeaths", "Converted_Date")]
+                              , input$selectedDay == policyData$Converted_Date) 
+      dayDeathsData$NAME <- dayDeathsData$Province_State
       
-      geo@data <- left_join(baseGeoData, dayData)
+      
+      
+      deathsGeo@data <- left_join(geo@data, dayDeathsData, by = "NAME")
+      
+    })
+    
+    #observer block updating spatial file for index map with data for selected day on input slider
+    
+    observe({
+      dayIndexData <- filter(policyData[,c("Province_State", input$selectedIndex, "Converted_Date")]
+                      , input$selectedDay == policyData$Converted_Date)
+      
+      
+      dayIndexData$NAME <- dayIndexData$Province_State
+      indexGeo@data <- left_join(geo@data, dayIndexData, by = "NAME")
+      
       
     })
     
@@ -110,58 +139,34 @@ function(input, output, session) {
     
     pal <- colorBin("YlOrRd", domain = geo@data$data)
     
-    output$deathsMap <- leaflet(geo) %>%
+    
+    
+    
+    output$deathsMap <- leaflet(deathsGeo) %>%
       addtiles()%>%
     #  addPolygons(fillColor = ~pal(dailyDeaths))%>%
       
-      leafletProxy(deathsMap, data = geo)
+      leafletProxy(output$deathsMap, data = deathsGeo@data)
     
-      indexMapPlotTitle <- paste(as.character(input$selectedIndex), "Over Time")
+    
+    output$indexPlot <- leaflet(indexGeo) %>%
+      addtiles() %>%
+      leafletProxy(output$indexMap, data = indexGeo@data)
+    
+    
+    
+    
+    
+      # 
+      # indexMapPlotTitle <- paste(as.character(input$selectedIndex), "Over Time")
+      # deathsMapPlotTitle <- paste("Daily Deaths Over Time")
+      # 
+      #  
    
-      
-      # Reactive expression for the data subsetted to what the user selected
-      # filteredData <- reactive({
-      #   policyData[policyData$Date == input$Date,]
-      # })   
-      # 
-      # output$indexMap <-renderLeaflet({
-      #   leaflet() %>%
-      #     addProviderTiles(providers$maps,
-      #                      options = providerTileOptions(noWrap = TRUE)
-      #     ) 
-      #     
-      # })
-      
-      # observe({
-      #   
-      #   pal <- colorBin("YlOrRd", domain = geo@data$value)
-      #   
-      #   leafletProxy("indexMapPlot", data = filteredData()) %>%
-      #     clearShapes() %>%
-      # 
-      # })      
-      
-         
- 
-
-
-
-
-#     
-    # Setting up deaths over time in each state on map
-      
-      deathsMapPlotTitle <- paste("Daily Deaths Over Time")
-      
-    #   
-    # output$deathsMap <- renderLealet({
-    #   
-    #   
-    #   mapStates = map("state", fill = TRUE, plot = FALSE)
-    # leaflet(data = mapStates) %>% addTiles() %>%
-    #   addPolygons(fillColor = topo.colors(10, alpha = NULL), stroke = FALSE) 
-    # 
-    # 
-    #  )}
 
 }
 
+
+# First deathsMap needs only state, deaths, and date added to the geojson data. only add selected date data to the geojson data (geo@data?)
+# Second indexMap needs state, one index, and date added to the geojson data, add an observer to add only the selected index and for only the selected date
+# leaflet proxy for both, set YloRd gradients for each map separately

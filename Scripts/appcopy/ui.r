@@ -1,8 +1,9 @@
-file <- "../../Data/covid19_state_policy_tidydata.csv"
-policyData <- read.csv(file)
+# file <- "../../Data/covid19_state_policy_tidydata.csv"
+# policyData <- read.csv(file)
 library(shiny)
 library(leaflet)
 library(geojsonio)
+library(lubridate)
 
 
 # Define UI 
@@ -10,50 +11,50 @@ library(geojsonio)
 ui <- fluidPage(
   
   navbarPage("Covid-19 State Policy App",
-             tabPanel(
-               "Component 1",
-                 
-                 # Inputs: Select variables to plot
-                 sidebarPanel(
-                   
-                   # Select variable for y-axis
-                   selectInput(
-                     inputId = "y",
-                     label = "Y-axis:",
-                     choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-                     selected = "StringencyIndex"
-                   ),
-                   # Select variable for x-axis
-                   selectInput(
-                     inputId = "x",
-                     label = "X-axis:",
-                     choices = c("Converted_Date"),
-                     selected = "Converted_Date"
-                   ),
-                   
-                   # Select State to filter by
-                   selectInput(
-                     inputId = "State",
-                     label = "Province_State:",
-                     choices = c(unique(policyData$Province_State)),
-                     selected = "Alabama"
-                   )
-                 ),
-                 
-                 # Output: Show plots
-                 mainPanel("Plot",
-                            plotOutput("indexPlot"),
-                            br(),
-                            br(),
-                            plotOutput("deathsPlot")
-                  )
-                ),
-               
-            tabPanel("Component 2",
-                 mainPanel("Plot2",
-                           plotOutput("DeathsOverTimebyDensity")
-                )
-            ),
+            #  tabPanel(
+            #    "Component 1",
+            #      
+            #      # Inputs: Select variables to plot
+            #      sidebarPanel(
+            #        
+            #        # Select variable for y-axis
+            #        selectInput(
+            #          inputId = "y",
+            #          label = "Y-axis:",
+            #          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+            #          selected = "StringencyIndex"
+            #        ),
+            #        # Select variable for x-axis
+            #        selectInput(
+            #          inputId = "x",
+            #          label = "X-axis:",
+            #          choices = c("Converted_Date"),
+            #          selected = "Converted_Date"
+            #        ),
+            #        
+            #        # Select State to filter by
+            #        selectInput(
+            #          inputId = "State",
+            #          label = "Province_State:",
+            #          choices = c(unique(policyData$Province_State)),
+            #          selected = "Alabama"
+            #        )
+            #      ),
+            #      
+            #      # Output: Show plots
+            #      mainPanel("Plot",
+            #                 plotOutput("indexPlot"),
+            #                 br(),
+            #                 br(),
+            #                 plotOutput("deathsPlot")
+            #       )
+            #     ),
+            #    
+            # tabPanel("Component 2",
+            #      mainPanel("Plot2",
+            #                plotOutput("DeathsOverTimebyDensity")
+            #     )
+            # ),
             
             tabPanel("Component 3",
                      #Inputs: Date slider and Index Options
@@ -66,7 +67,7 @@ ui <- fluidPage(
                          selected = "StringencyIndex"
                       ),
                        #Date Slider
-                      sliderInput("Date", "Date", min = as.Date("2020-04-12"), max = as.Date("2022-12-31"), value = as.Date("2020-04-12"), step = NULL, round = FALSE,
+                      sliderInput(inputId = "selectedDay", label = "Date", min = as.Date("2020-04-12"), max = as.Date("2022-12-31"), value = as.Date("2020-04-12"), step = NULL, round = FALSE,
                                   ticks = FALSE,
                                   animate = animationOptions(interval = 200, loop = TRUE, playButton = NULL,
                                                                                                          pauseButton = NULL),
@@ -78,10 +79,10 @@ ui <- fluidPage(
                      
                      
                      mainPanel("Plot3",
-                               renderLeaflet("deathsMap"),
+                               leafletOutput("deathsMap"),
                                br(),
                                br(),
-                               renderLeaflet("indexMap")
+                               leafletOutput("indexMap")
                                
                      )
              )
