@@ -84,7 +84,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                    # Select variable for y-axis
                    selectInput(
                      inputId = "Index",
-                     label = "Y-axis:",
+                     label = "Index:",
                      choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                      selected = "StringencyIndex"
                    ),
@@ -101,15 +101,15 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      may select from the states and the computed 
                      OxCGRT indeces (range 0-100)."),
                    p("Description of the Policy Indeces (Source: OxCRGT):"),
-                   p("1. A containment and health index, showing how many and how forceful the measures to
+                   p("1. A stringency index, which records the strictness of ‘lockdown style’ closure and
+                     containment policies that primarily restrict people’s behavior"),
+                   p("2. A containment and health index, showing how many and how forceful the measures to
                    contain the virus and protect citizen health are (this combines ‘lockdown’ restrictions and
                    closures with health measures such as testing policy and contact tracing)"),
-                   p("2. An economic support index, showing how much economic support has been made
-                   available (such as income support and debt relief)"),
-                   p("3. A stringency index, which records the strictness of ‘lockdown style’ closure and
-                     containment policies that primarily restrict people’s behavior"),
-                   p("4. An overall government response index which records how the response of states has
-                     varied over all indicators, capturing the full range of government responses")
+                   p("3. An overall government response index which records how the response of states has
+                     varied over all indicators, capturing the full range of government responses"),
+                   p("4. An economic support index, showing how much economic support has been made
+                     available (such as income support and debt relief)")
                    ),
                    
                  
@@ -270,6 +270,37 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                p("Note: * - p < 0.05; ** - p < 0.01; *** - p < 0.001")
                        
                      )
-                     )
+                     ),
+            tabPanel("Predictive Modeling",
+                     # Inputs: Select variables to plot
+                     sidebarPanel(
+                       selectInput(
+                         "predictors",
+                         label = h3("Select Predictors:"),
+                         multiple = TRUE,
+                         choices = c("StringencyIndex",
+                                     "ContainmentHealthIndex",
+                                     "GovernmentResponseIndex",
+                                     "EconomicSupportIndex"
+                                     ),
+                         selected = "StringencyIndex"
+                         ),
+                       selectInput(
+                         "predictOutput",
+                         label = h3("Variable to Predict:"),
+                         choices = c("Incident_Rate",
+                                     "Case_Fatality_Ratio",
+                                     "Hospitalization_Rate",
+                                     "dailyDeaths")
+                       )
+                       ),
+                     mainPanel(
+                         h4("Predictive Modeling"),
+                         verbatimTextOutput("prediction")
+                         # ,
+                         # plotOutput("multiRegressionPlot")
+                       )
+              
+            )
             )
   )

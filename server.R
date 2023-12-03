@@ -34,21 +34,6 @@ function(input, output, session) {
   
   ## TAB 1 [Time Series] ###########################################
   
-  # output$stateIcon <- renderImage({
-  #   
-  #   state <- input$State
-  #   picFilepath <- paste(file3, state,'.jpg', sep='')
-  #   
-  #   return(list(
-  #     src=picFilepath,
-  #     contentType = 'image/jpg',
-  #     alt = 'State',
-  #     width = "200",
-  #     height = "300"
-  #   ))
-  # })
-  # 
-  
   output$indexPlot <- renderPlot({
   
     indexPlotTitle <- paste(as.character(input$Index), "Over Time — ", as.character(input$State))
@@ -440,8 +425,6 @@ function(input, output, session) {
       corrplot(M, method = 'number',
                addCoef.col = "grey50",
                tl.col = 'black',
-               order = "hclust", 
-               addrect = 2,
                diag = FALSE) # numeric
       } else {
       # If the switch is OFF, don't render the plot
@@ -455,5 +438,32 @@ function(input, output, session) {
     }
     
   })
+  
+  ## TAB 5 [Predictive Modeling] ###########################################
+  
+  output$prediction <- renderPrint({
+    
+    # Obtain inputted predictive variables
+    varPredict <- c(input$predictors)
+    
+    # Develop linear model
+    lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
+    multiRegression <- lm(lmformula, data = policyData)
+    summary(multiRegression)
+  })
+  
+  output$prediction <- renderPrint({
+    
+    # Obtain inputted predictive variables
+    varPredict <- c(input$predictors)
+    
+    # Develop linear model
+    lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
+    multiRegression <- lm(lmformula, data = policyData)
+    predictedValues <- predict(multiRegression, newdata = data.frame(StringencyIndex = 60), interval = 'confidence')
+    paste("Predicted Values:", round(predictedValues, 2))
+    # summary(multiRegression)
+  })
+  
   
 }
