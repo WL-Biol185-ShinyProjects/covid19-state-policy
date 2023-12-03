@@ -3,6 +3,7 @@ library(tidyverse)
 library(plotly)
 library(purrr)
 library(corrplot)
+library(caret)
 
 # Define server 
 file1 <- "Data/covid19_state_policy_tidydata.csv"
@@ -462,16 +463,16 @@ function(input, output, session) {
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
 
     numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-    
+
     TrainingData <- filteredData %>%
       slice(1:numRowsToKeep)
-    
+
     TestData <- filteredData %>%
       slice(numRowsToKeep:nrow(filteredData))
-    
+
     # Obtain inputted predictive variables
     varPredict <- c(input$predictors)
-    
+
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
     multiRegression <- lm(lmformula, data = TrainingData)
@@ -481,28 +482,39 @@ function(input, output, session) {
   
   output$multiRegressionPlot <- renderPlot({
     
+    # Obtain inputted predictive variables
+    varPredict <- c(input$predictors)
+    
+    # Filter Data based on State and Date
     filteredData <- policyData %>%
       filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
     
+    # Create Time Slices for LM Model
     numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
     
-    splitIndex <- createDataPartition(filteredData, p = (as.integer(input$Slider1)/100), list = FALSE)
+    timeSlices <- createTimeSlices(filteredData$Converted_Date,
+                              initialWindow = numRowsToKeep,
+                              horizon = nrow(filteredData) - numRowsToKeep)
     
-    TrainingData <- filteredData[splitIndex,]
+    # Create Training Data and Test Data
+    trainingIndex <- timeSlices$train[[1]]
+    testingIndex <- timeSlices$test[[1]]
     
-    TestData <- filteredData[-splitIndex]
+    trainingData <- filteredData[trainingIndex,]
+    testingData <- filteredData[testingIndex,]
     
-    # Obtain inputted predictive variables
-    varPredict <- c(input$predictors)
+    # Setting up trainControl for time series cross-validation
+    ctrl <- trainControl(method = "timeslice", index = timeSlices)
     
-    # Develop linear model
+    
+    # Creating the lm model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    multiRegression <- lm(lmformula, data = TrainingData)
-    predictedValues <- predict(multiRegression, newdata = TestData)
-                               # , interval = 'confidence')
-    
-    ggplot(data = TestData, 
+    multiRegression <- train(lmformula, data = trainingData, method = "lm", na.action = na.pass)
+
+    predictedValues <- predict(multiRegression, newdata = testingData)
+
+    ggplot(data = testingData,
            aes_string(x = input$predictOutput,
                       y = 'predictedValues'))+
       geom_point()+
@@ -510,7 +522,7 @@ function(input, output, session) {
       labs(x = paste("Actual", input$predictOutput),
            y = paste("Predicted", input$predictOutput),
            title = paste("Actual vs Predicted", input$predictOutput))
-    
+
   })
   
   

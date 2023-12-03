@@ -279,7 +279,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          label = h4("Train/Test Split %"),
                          min = 0,
                          max = 100,
-                         value = 75
+                         value = 90
                        ),
                        textOutput("cntTrain"),
                        textOutput("cntTest"),
@@ -287,7 +287,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                        selectInput(
                          "predictors",
                          label = h5("Select Predictors:"),
-                         multiple = TRUE,
+                         multiple = FALSE,
                          choices = c("StringencyIndex",
                                      "ContainmentHealthIndex",
                                      "GovernmentResponseIndex",
@@ -309,9 +309,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          "predictOutput",
                          label = h5("Variable to Predict:"),
                          choices = c("Incident_Rate",
-                                     "Case_Fatality_Ratio",
-                                     "Hospitalization_Rate",
-                                     "dailyDeaths")
+                                     "Case_Fatality_Ratio")
                        )
                        ),
                      mainPanel(
