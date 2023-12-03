@@ -504,15 +504,22 @@ function(input, output, session) {
     trainingData <- filteredData[trainingIndex,]
     testingData <- filteredData[testingIndex,]
     
-    # Setting up trainControl for time series cross-validation
-    ctrl <- trainControl(method = "timeslice", index = timeSlices)
+    # # Setting up trainControl for time series cross-validation
+    # ctrl <- trainControl(method = "timeslice", index = timeSlices)
+    # 
+    # 
+    # # Creating the lm model
+    # lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
+    # multiRegression <- train(lmformula, data = trainingData, method = "lm", na.action = na.pass)
+    # 
+    # predictedValues <- predict(multiRegression, newdata = testingData)
     
-    
-    # Creating the lm model
+    # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    multiRegression <- train(lmformula, data = trainingData, method = "lm", na.action = na.pass)
-
+    multiRegression <- lm(lmformula, data = trainingData)
     predictedValues <- predict(multiRegression, newdata = testingData)
+    
+    # , interval = 'confidence')
 
     ggplot(data = testingData,
            aes_string(x = input$predictOutput,

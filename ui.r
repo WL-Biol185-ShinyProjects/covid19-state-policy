@@ -115,7 +115,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                  
                  # Output: Show plots
                  mainPanel(
-                   h1("Time Series"),
+                   h3("Time Series"),
                    plotOutput("indexPlot"),
                    br(),                                                                                                                                                                                                                                                     
                    br(),
@@ -185,7 +185,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                choices = highDensityStates,
                                selected = highDensityStates))),
                            
-                           mainPanel(h1("Cross Sectional"),
+                           mainPanel(h3("Cross Sectional"),
                                      fluidRow(
                                        splitLayout(cellWidths = c("50%", "50%"),
                                                    plotlyOutput(outputId = 'DeathsOverTimebyDensityLow',
@@ -235,7 +235,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      
                      
                      # Output: Show plots
-                     mainPanel(h1("Policy Response Summary"),
+                     mainPanel(h3("Policy Response Summary"),
                                plotOutput("indexStackedPlot",
                                           height = "640px"),
                                p("Source: Oxford Covid-19 Government Response Tracker", align = "center")
@@ -263,7 +263,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          of data collection. Correlations were computed by corrplot with a alpha
                          threshold of 0.05.")
                        ),
-                     mainPanel(h1("Correlation Matrix"),
+                     mainPanel(h3("Correlation Matrix"),
                                plotOutput("stateMatrixPlot",
                                           width = "640",
                                           height = "640"),
