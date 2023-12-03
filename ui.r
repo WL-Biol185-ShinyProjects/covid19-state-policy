@@ -274,9 +274,19 @@ ui <- fluidPage(theme = shinytheme("superhero"),
             tabPanel("Predictive Modeling",
                      # Inputs: Select variables to plot
                      sidebarPanel(
+                       sliderInput(
+                         "Slider1",
+                         label = h4("Train/Test Split %"),
+                         min = 0,
+                         max = 100,
+                         value = 75
+                       ),
+                       textOutput("cntTrain"),
+                       textOutput("cntTest"),
+                       
                        selectInput(
                          "predictors",
-                         label = h3("Select Predictors:"),
+                         label = h5("Select Predictors:"),
                          multiple = TRUE,
                          choices = c("StringencyIndex",
                                      "ContainmentHealthIndex",
@@ -286,8 +296,18 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          selected = "StringencyIndex"
                          ),
                        selectInput(
+                         "predictorState",
+                         label = h5("Select State:"),
+                         multiple = FALSE,
+                         choices = c(lowDensityStates, 
+                                     mediumDensityStates,
+                                     highDensityStates
+                         ),
+                         selected = "Alaska"
+                       ),
+                       selectInput(
                          "predictOutput",
-                         label = h3("Variable to Predict:"),
+                         label = h5("Variable to Predict:"),
                          choices = c("Incident_Rate",
                                      "Case_Fatality_Ratio",
                                      "Hospitalization_Rate",
@@ -296,9 +316,8 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                        ),
                      mainPanel(
                          h4("Predictive Modeling"),
+                         plotOutput("multiRegressionPlot"),
                          verbatimTextOutput("prediction")
-                         # ,
-                         # plotOutput("multiRegressionPlot")
                        )
               
             )

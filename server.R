@@ -441,28 +441,76 @@ function(input, output, session) {
   
   ## TAB 5 [Predictive Modeling] ###########################################
   
-  output$prediction <- renderPrint({
-    
-    # Obtain inputted predictive variables
-    varPredict <- c(input$predictors)
-    
-    # Develop linear model
-    lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    multiRegression <- lm(lmformula, data = policyData)
-    summary(multiRegression)
-  })
+  # output$prediction <- renderPrint({
+  #   
+  #   filteredData <- policyData %>%
+  #     filter(Province_State == input$predictorState)
+  #   
+  #   # Obtain inputted predictive variables
+  #   varPredict <- c(input$predictors)
+  #   
+  #   # Develop linear model
+  #   lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
+  #   multiRegression <- lm(lmformula, data = filteredData)
+  #   summary(multiRegression)
+  # })
   
   output$prediction <- renderPrint({
     
+    filteredData <- policyData %>%
+      filter(Province_State == input$predictorState) %>%
+      filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
+
+    numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
+    
+    TrainingData <- filteredData %>%
+      slice(1:numRowsToKeep)
+    
+    TestData <- filteredData %>%
+      slice(numRowsToKeep:nrow(filteredData))
+    
     # Obtain inputted predictive variables
     varPredict <- c(input$predictors)
     
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    multiRegression <- lm(lmformula, data = policyData)
-    predictedValues <- predict(multiRegression, newdata = data.frame(StringencyIndex = 60), interval = 'confidence')
-    paste("Predicted Values:", round(predictedValues, 2))
-    # summary(multiRegression)
+    multiRegression <- lm(lmformula, data = TrainingData)
+    predictedValues <- predict(multiRegression, newdata = TestData, interval = 'confidence')
+    summary(multiRegression)
+  })
+  
+  output$multiRegressionPlot <- renderPlot({
+    
+    filteredData <- policyData %>%
+      filter(Province_State == input$predictorState) %>%
+      filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
+    
+    numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
+    
+    splitIndex <- createDataPartition(filteredData, p = (as.integer(input$Slider1)/100), list = FALSE)
+    
+    TrainingData <- filteredData[splitIndex,]
+    
+    TestData <- filteredData[-splitIndex]
+    
+    # Obtain inputted predictive variables
+    varPredict <- c(input$predictors)
+    
+    # Develop linear model
+    lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
+    multiRegression <- lm(lmformula, data = TrainingData)
+    predictedValues <- predict(multiRegression, newdata = TestData)
+                               # , interval = 'confidence')
+    
+    ggplot(data = TestData, 
+           aes_string(x = input$predictOutput,
+                      y = 'predictedValues'))+
+      geom_point()+
+      geom_smooth(method = "lm")+
+      labs(x = paste("Actual", input$predictOutput),
+           y = paste("Predicted", input$predictOutput),
+           title = paste("Actual vs Predicted", input$predictOutput))
+    
   })
   
   
