@@ -271,18 +271,18 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                        
                      )
                      ),
-            tabPanel("Predictive Modeling",
+            tabPanel("Linear Regression",
                      # Inputs: Select variables to plot
                      sidebarPanel(
-                       sliderInput(
-                         "Slider1",
-                         label = h4("Train/Test Split %"),
-                         min = 0,
-                         max = 100,
-                         value = 90
-                       ),
-                       textOutput("cntTrain"),
-                       textOutput("cntTest"),
+                       # sliderInput(
+                       #   "Slider1",
+                       #   label = h4("Train/Test Split %"),
+                       #   min = 0,
+                       #   max = 100,
+                       #   value = 90
+                       # ),
+                       # textOutput("cntTrain"),
+                       # textOutput("cntTest"),
                        
                        selectInput(
                          "predictors",
@@ -308,12 +308,11 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                        selectInput(
                          "predictOutput",
                          label = h5("Variable to Predict:"),
-                         choices = c("Incident_Rate",
-                                     "Case_Fatality_Ratio")
+                         choices = c("Incident_Rate")
                        )
                        ),
                      mainPanel(
-                         h4("Predictive Modeling"),
+                         h4("Linear Regression"),
                          plotOutput("multiRegressionPlot"),
                          verbatimTextOutput("prediction")
                        )

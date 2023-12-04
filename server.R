@@ -462,21 +462,21 @@ function(input, output, session) {
       filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
 
-    numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-
-    TrainingData <- filteredData %>%
-      slice(1:numRowsToKeep)
-
-    TestData <- filteredData %>%
-      slice(numRowsToKeep:nrow(filteredData))
+    # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
+    # 
+    # TrainingData <- filteredData %>%
+    #   slice(1:numRowsToKeep)
+    # 
+    # TestData <- filteredData %>%
+    #   slice(numRowsToKeep:nrow(filteredData))
 
     # Obtain inputted predictive variables
     varPredict <- c(input$predictors)
 
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    multiRegression <- lm(lmformula, data = TrainingData)
-    predictedValues <- predict(multiRegression, newdata = TestData, interval = 'confidence')
+    multiRegression <- lm(lmformula, data = filteredData)
+    # predictedValues <- predict(multiRegression, newdata = TestData, interval = 'confidence')
     summary(multiRegression)
   })
   
@@ -490,19 +490,19 @@ function(input, output, session) {
       filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
     
-    # Create Time Slices for LM Model
-    numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-    
-    timeSlices <- createTimeSlices(filteredData$Converted_Date,
-                              initialWindow = numRowsToKeep,
-                              horizon = nrow(filteredData) - numRowsToKeep)
-    
-    # Create Training Data and Test Data
-    trainingIndex <- timeSlices$train[[1]]
-    testingIndex <- timeSlices$test[[1]]
-    
-    trainingData <- filteredData[trainingIndex,]
-    testingData <- filteredData[testingIndex,]
+    # # Create Time Slices for LM Model
+    # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
+    # 
+    # timeSlices <- createTimeSlices(filteredData$Converted_Date,
+    #                           initialWindow = numRowsToKeep,
+    #                           horizon = nrow(filteredData) - numRowsToKeep)
+    # 
+    # # Create Training Data and Test Data
+    # trainingIndex <- timeSlices$train[[1]]
+    # testingIndex <- timeSlices$test[[1]]
+    # 
+    # trainingData <- filteredData[trainingIndex,]
+    # testingData <- filteredData[testingIndex,]
     
     # # Setting up trainControl for time series cross-validation
     # ctrl <- trainControl(method = "timeslice", index = timeSlices)
@@ -516,19 +516,25 @@ function(input, output, session) {
     
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    multiRegression <- lm(lmformula, data = trainingData)
-    predictedValues <- predict(multiRegression, newdata = testingData)
+    multiRegression <- lm(lmformula, data = filteredData)
+    # predictedValues <- predict(multiRegression, newdata = testingData)
     
     # , interval = 'confidence')
 
-    ggplot(data = testingData,
-           aes_string(x = input$predictOutput,
-                      y = 'predictedValues'))+
+    ggplot(data = filteredData,
+           aes_string(x = input$predictors,
+                      y = input$predictOutput))+
       geom_point()+
       geom_smooth(method = "lm")+
-      labs(x = paste("Actual", input$predictOutput),
-           y = paste("Predicted", input$predictOutput),
-           title = paste("Actual vs Predicted", input$predictOutput))
+      theme(axis.text=element_text(size=12),
+            axis.title = element_text(size=16),
+            title = element_text(size = 18))+
+      labs(x = paste(input$predictors),
+           y = paste(input$predictOutput),
+           title = paste(input$predictors," vs ", input$predictOutput))
+    
+    par(mfrow=c(2,2))
+    plot(multiRegression)
 
   })
   
