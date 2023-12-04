@@ -4,6 +4,8 @@ library(plotly)
 library(purrr)
 library(corrplot)
 library(caret)
+library(reshape2)
+
 
 # Define server 
 file1 <- "Data/covid19_state_policy_tidydata.csv"
@@ -373,6 +375,36 @@ function(input, output, session) {
             axis.text=element_text(size=11))
   })
   
+  output$indexStatePlot <- renderPlot({
+    
+    # Plot Title
+    indexStatePlotTitle <- paste("Index Averages for", 
+                                   as.character(input$stateIndexRepresentation))
+    
+    # Filter by State
+    filteredData <- policyData %>%
+      filter(Province_State == input$stateIndexRepresentation) %>%
+      filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13') %>%
+      select(c("Converted_Date", "StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"))
+    
+    filteredDataMelted <- melt(filteredData,  id.vars = 'Converted_Date', variable.name = 'indeces')
+    
+    
+    # Plot output
+    ggplot(filteredDataMelted, aes(x = Converted_Date,
+                           y = value))+
+      geom_line(aes(color = indeces))+
+      labs(title = indexStatePlotTitle,
+           x = "Time",
+           y = "Index")+
+      theme(title = element_text(size = 18)
+            # ,
+            # y = element_text(size = 14),
+            # x = element_text(size = 14)
+            )
+
+  })
+  
   ## TAB 4 [Correlation Matrix] ###########################################
   
   output$stateMatrixPlot <- renderPlot({
@@ -440,7 +472,7 @@ function(input, output, session) {
     
   })
   
-  ## TAB 5 [Predictive Modeling] ###########################################
+  ## TAB 5 [Linear Regression] ###########################################
   
   # output$prediction <- renderPrint({
   #   

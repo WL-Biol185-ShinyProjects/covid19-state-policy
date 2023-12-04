@@ -228,6 +228,17 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
                          selected = "StringencyIndex"
                        ),
+                       selectInput(
+                         "stateIndexRepresentation",
+                         label = h5("Select State:"),
+                         multiple = FALSE,
+                         choices = c(lowDensityStates, 
+                                     mediumDensityStates,
+                                     highDensityStates
+                         ),
+                         selected = "Alaska"
+                         ),
+                       
                        p("This visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
                        Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
                        be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above.")
@@ -238,7 +249,8 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      mainPanel(h3("Policy Response Summary"),
                                plotOutput("indexStackedPlot",
                                           height = "640px"),
-                               p("Source: Oxford Covid-19 Government Response Tracker", align = "center")
+                               p("Source: Oxford Covid-19 Government Response Tracker", align = "center"),
+                               plotOutput("indexStatePlot")
                                )
                      ),
             
