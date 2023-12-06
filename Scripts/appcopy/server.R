@@ -6,6 +6,8 @@ library(geojsonio)
 library(shiny)
 library(readr)
 library(dplyr)
+library(RColorBrewer)
+
 
 # Define server 
 file <- "../../Data/covid19_state_policy_tidydata.csv"
@@ -15,7 +17,7 @@ setwd("/home/parthas25@ad.wlu.edu/covid19-state-policy/Scripts/appcopy")
 policyData <- read.csv(file)
 policyData$Converted_Date <- as.Date(policyData$Converted_Date)
 
-#print(getwd())
+print(getwd())
 
 
 
@@ -83,7 +85,7 @@ function(input, output, session) {
   
   
   
-    ## TAB 3 Linked Plots Over Maps #########################################
+    ## TAB 3 Linked Plots Over Maps 
     
 #  function getColor(d) {
 #    return d > 1000 ? '#800026' :
@@ -108,13 +110,19 @@ function(input, output, session) {
     indexGeo <- geo
     
     
+    
+    bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+    deathsPal <- colorNumeric(palette = "YlOrRd", domain = min(policyData$dailyDeaths) : max(policyData$dailyDeaths), na.color = "white")
+    indexPal <- colorNumeric(palette = "YlOrRd", domain = 0:100, na.color = "white")
+    
+    
+   
     #observer block updating spatial file for deaths map with data for selected day on input slider
    
     observe({
       dayDeathsData <- filter(policyData[,c("Province_State", "dailyDeaths", "Converted_Date")]
                               , input$selectedDay == policyData$Converted_Date) 
-      dayDeathsData$NAME <- dayDeathsData$Province_State
-      
+      dayDeathsData$NAME <- dayDeathsData$Province_State      #matches name of state column in geo@data
       
       
       deathsGeo@data <- left_join(geo@data, dayDeathsData, by = "NAME")
@@ -128,6 +136,7 @@ function(input, output, session) {
                       , input$selectedDay == policyData$Converted_Date)
       
       
+      
       dayIndexData$NAME <- dayIndexData$Province_State
       indexGeo@data <- left_join(geo@data, dayIndexData, by = "NAME")
       
@@ -135,38 +144,46 @@ function(input, output, session) {
     })
     
     
-
-    
-    pal <- colorBin("YlOrRd", domain = geo@data$data)
     
     
     
     
-    output$deathsMap <- leaflet(deathsGeo) %>%
-      addtiles()%>%
-    #  addPolygons(fillColor = ~pal(dailyDeaths))%>%
+    output$deathsMap <- renderLeaflet({
+      leaflet(deathsGeo) %>%
+        addTiles()%>%
+          addPolygons(
+            fillColor = ~deathsPal(deathsGeo@data$dailyDeaths),
+              weight = 2,
+                opacity = 1,
+                  color = "gray",
+                    dashArray = "3",
+                      fillOpacity = 0.7)
+      })
       
-      leafletProxy(output$deathsMap, data = deathsGeo@data)
     
     
-    output$indexPlot <- leaflet(indexGeo) %>%
-      addtiles() %>%
-      leafletProxy(output$indexMap, data = indexGeo@data)
+    observe({
+    leafletProxy("deathsMap", data = deathsGeo@data)
+    })
+      
+      
+    
+    output$indexPlot <- renderLeaflet({
+      leaflet(indexGeo) %>%
+        addTiles()%>%
+          addPolygons( #add data argument
+           fillColor = ~indexPal(output$selectedIndex),
+             weight = 2,
+              opacity = 1,
+               color = "gray",
+                dashArray = "3",
+                  fillOpacity = 0.7)
+      })
+    observe({
+      leafletProxy("indexMap", data = indexGeo@data)
+    })
     
     
-    
-    
-    
-      # 
-      # indexMapPlotTitle <- paste(as.character(input$selectedIndex), "Over Time")
-      # deathsMapPlotTitle <- paste("Daily Deaths Over Time")
-      # 
-      #  
    
 
 }
-
-
-# First deathsMap needs only state, deaths, and date added to the geojson data. only add selected date data to the geojson data (geo@data?)
-# Second indexMap needs state, one index, and date added to the geojson data, add an observer to add only the selected index and for only the selected date
-# leaflet proxy for both, set YloRd gradients for each map separately
