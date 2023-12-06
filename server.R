@@ -475,7 +475,7 @@ function(input, output, session) {
   output$prediction <- renderPrint({
     
     filteredData <- policyData %>%
-      filter(Province_State == input$predictorState) %>%
+      # filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
 
     # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
@@ -503,7 +503,7 @@ function(input, output, session) {
     
     # Filter Data based on State and Date
     filteredData <- policyData %>%
-      filter(Province_State == input$predictorState) %>%
+      # filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
     
     filteredData[filteredData == 0] <- NA

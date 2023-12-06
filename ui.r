@@ -335,16 +335,16 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                                      ),
                          selected = "StringencyIndex"
                          ),
-                       selectInput(
-                         "predictorState",
-                         label = h5("Select State:"),
-                         multiple = FALSE,
-                         choices = c(lowDensityStates, 
-                                     mediumDensityStates,
-                                     highDensityStates
-                         ),
-                         selected = "Alaska"
-                       ),
+                       # selectInput(
+                       #   "predictorState",
+                       #   label = h5("Select State:"),
+                       #   multiple = FALSE,
+                       #   choices = c(lowDensityStates, 
+                       #               mediumDensityStates,
+                       #               highDensityStates
+                       #   ),
+                       #   selected = "Alaska"
+                       # ),
                        selectInput(
                          "predictOutput",
                          label = h5("Variable to Predict:"),
