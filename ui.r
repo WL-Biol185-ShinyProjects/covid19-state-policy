@@ -100,16 +100,20 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      across the period of data collection. Users
                      may select from the states and the computed 
                      OxCGRT indeces (range 0-100)."),
-                   p("Description of the Policy Indeces (Source: OxCRGT):"),
-                   p("1. A stringency index, which records the strictness of ‘lockdown style’ closure and
-                     containment policies that primarily restrict people’s behavior"),
-                   p("2. A containment and health index, showing how many and how forceful the measures to
+                   p("Description of the Policy Indeces (**Rewrite descriptions):"),
+                   em("1. StringencyIndex:"),
+                   p("Records the strictness of ‘lockdown style’ closure and
+                     containment policies that primarily restrict people’s behavior."),
+                   em("2. ContainmentHealthIndex:"),
+                   p("Describes how many and how forceful the measures to
                    contain the virus and protect citizen health are (this combines ‘lockdown’ restrictions and
-                   closures with health measures such as testing policy and contact tracing)"),
-                   p("3. An overall government response index which records how the response of states has
-                     varied over all indicators, capturing the full range of government responses"),
-                   p("4. An economic support index, showing how much economic support has been made
-                     available (such as income support and debt relief)")
+                   closures with health measures such as testing policy and contact tracing)."),
+                   em("3. GovernmentResponseIndex:"),
+                   p("Records how the response of states has
+                     varied over all indicators, capturing the full range of government responses."),
+                   em("4. EconomicSupportIndex:"),
+                   p("Captures how much economic support has been made
+                     available (such as income support and debt relief).")
                    ),
                    
                  
@@ -239,7 +243,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                          selected = "Alaska"
                          ),
                        
-                       p("This visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
+                       p("The first visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
                        Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
                        be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above.")
                        ),
@@ -272,7 +276,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                    selected = "Alaska"),
                        p("This visualization helps users explore the significance of the relationships
                          between state policy responses and mortality outcomes for the given period
-                         of data collection. Correlations were computed by corrplot with a alpha
+                         of data collection. Correlations were computed by corrplot with an alpha
                          threshold of 0.05.")
                        ),
                      mainPanel(h3("Correlation Matrix"),
@@ -320,7 +324,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                        selectInput(
                          "predictOutput",
                          label = h5("Variable to Predict:"),
-                         choices = c("Incident_Rate")
+                         choices = c("dailyDeaths")
                        )
                        ),
                      mainPanel(
