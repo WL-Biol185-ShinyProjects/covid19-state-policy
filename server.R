@@ -542,14 +542,16 @@ function(input, output, session) {
     ggplot(data = filteredData,
            aes_string(x = input$predictors,
                       y = input$predictOutput))+
-      geom_point()+
+      geom_point(aes(color = Province_State))+
       geom_smooth(method = "lm")+
       theme(axis.text=element_text(size=12),
             axis.title = element_text(size=16),
-            title = element_text(size = 18))+
+            title = element_text(size = 18),
+            legend.text = element_text(size = 12))+
       labs(x = paste(input$predictors),
            y = paste(input$predictOutput),
-           title = paste(input$predictors,"vs", input$predictOutput))
+           title = paste(input$predictors,"vs", input$predictOutput),
+           color = "State")
     
     # par(mfrow=c(2,2))
     # plot(multiRegression)
