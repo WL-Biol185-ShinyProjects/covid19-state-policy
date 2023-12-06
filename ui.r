@@ -102,18 +102,19 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      OxCGRT indeces (range 0-100)."),
                    p("Description of the Policy Indeces (**Rewrite descriptions):"),
                    em("1. StringencyIndex:"),
-                   p("Records the strictness of ‘lockdown style’ closure and
-                     containment policies that primarily restrict people’s behavior."),
+                   p("Documents the severity of closure and containment measures implemented
+                     that restricted population movement and behavior."),
                    em("2. ContainmentHealthIndex:"),
-                   p("Describes how many and how forceful the measures to
-                   contain the virus and protect citizen health are (this combines ‘lockdown’ restrictions and
-                   closures with health measures such as testing policy and contact tracing)."),
+                   p("Record the extent and intensity of efforts to contain Covid-19 
+                   and protect public health encompassing closure and containment measures
+                   along with health protocols like Covid-19 testing rate and contact tracing)."),
                    em("3. GovernmentResponseIndex:"),
-                   p("Records how the response of states has
-                     varied over all indicators, capturing the full range of government responses."),
+                   p("Reports the variability in state policy response across all 
+                     documented measures."),
                    em("4. EconomicSupportIndex:"),
-                   p("Captures how much economic support has been made
-                     available (such as income support and debt relief).")
+                   p("Reflects the degree economic support made available
+                     to a specific state at a point in time, including (but
+                     not limited to) income assistance and debt forgiveness.")
                    ),
                    
                  
