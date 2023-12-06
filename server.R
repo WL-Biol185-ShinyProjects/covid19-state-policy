@@ -30,8 +30,10 @@ function(input, output, session) {
       Covid-19 Data Repository to evaluate the effectiveness of policy-driven response
         on Covid-19 related mortalities."),
       p("References:"),
-      p("1. Oxford COVID-19 Government Response Tracker, Blavatnik School of Government, University of Oxford, https://github.com/OxCGRT/covid-policy-tracker."),
-      p("2. COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University, https://github.com/CSSEGISandData/COVID-19")
+      a("1. Oxford COVID-19 Government Response Tracker, Blavatnik School of Government, University of Oxford, https://github.com/OxCGRT/covid-policy-tracker.",
+        href = "https://github.com/OxCGRT/covid-policy-tracker"),
+      a("2. COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University",
+        href = "https://github.com/CSSEGISandData/COVID-19")
     ))
   })
   
@@ -344,8 +346,12 @@ function(input, output, session) {
       labs(x = "Time", 
            y = "States",
            fill= paste(as.character(input$StackedIndex)))+
-      theme(plot.title = element_text(hjust = 0.5, size = 22),
-            axis.text=element_text(size=11))
+      theme(plot.title = element_text(hjust = 0.5, size = 18),
+            axis.text=element_text(size=12),
+            axis.title = element_text(size=16),
+            legend.text = element_text(size=14),
+            title = element_text(size = 18),
+            legend.title = element_text(size = 16))
   })
   
   output$indexStatePlot <- renderPlot({
@@ -370,10 +376,12 @@ function(input, output, session) {
       ylim(0,100)+
       labs(title = indexStatePlotTitle,
            x = "Time",
-           y = "Index")+
-      theme(title = element_text(size = 18)
-            # y = element_text(size = 14),
-            # x = element_text(size = 14)
+           y = "Index",
+           color = "Index Type")+
+      theme(axis.text=element_text(size=12),
+            axis.title = element_text(size=16),
+            title = element_text(size = 18),
+            legend.text = element_text(size=14)
             )
 
   })
@@ -437,8 +445,11 @@ function(input, output, session) {
         corrplot(M, 
                  p.mat = testRes$p,
                  method = 'color',
-                 sig.level = c(0.001, 0.01, 0.05), pch.cex = 2,
-                 insig = 'label_sig', pch.col = 'white',
+                 # sig.level = c(0.001, 0.01, 0.05), 
+                 # pch.cex = 2,
+                 pch.col = 'white',
+                 insig = 'p-value',
+                 sig.level = -1,
                  tl.col = 'black',
                  diag = FALSE) # colorful number  
     }

@@ -72,7 +72,7 @@ highDensityStates <- c(
 
 # Define UI 
 
-ui <- fluidPage(theme = shinytheme("superhero"),
+ui <- fluidPage(theme = shinytheme("darkly"),
   
   navbarPage("Covid-19 State Policy Analysis",
              
@@ -224,38 +224,62 @@ ui <- fluidPage(theme = shinytheme("superhero"),
             tabPanel("Policy Response Summary",
                      
                      # Inputs: Select variables to plot
-                     sidebarPanel(
-                       
-                       # Select variable for y-axis
-                       selectInput(
-                         inputId = "StackedIndex",
-                         label = "Index:",
-                         choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-                         selected = "StringencyIndex"
-                       ),
-                       selectInput(
-                         "stateIndexRepresentation",
-                         label = h5("Select State:"),
-                         multiple = FALSE,
-                         choices = c(lowDensityStates, 
-                                     mediumDensityStates,
-                                     highDensityStates
-                         ),
-                         selected = "Alaska"
-                         ),
-                       
-                       p("The first visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
-                       Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
-                       be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above.")
-                       ),
-                     
-                     
+                     # sidebarPanel(
+                     #   
+                     #   # Select variable for y-axis
+                     #   selectInput(
+                     #     inputId = "StackedIndex",
+                     #     label = "Index:",
+                     #     choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                     #     selected = "StringencyIndex"
+                     #   ),
+                     #   selectInput(
+                     #     "stateIndexRepresentation",
+                     #     label = h5("Select State:"),
+                     #     multiple = FALSE,
+                     #     choices = c(lowDensityStates, 
+                     #                 mediumDensityStates,
+                     #                 highDensityStates
+                     #     ),
+                     #     selected = "Alaska"
+                     #     ),
+                     #   
+                     #   p("The first visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
+                     #   Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
+                     #   be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above.")
+                     #   ),
+                     # 
+                     # 
                      # Output: Show plots
                      mainPanel(h3("Policy Response Summary"),
+                               # Select variable for y-axis
+                               selectInput(
+                                 inputId = "StackedIndex",
+                                 label = "Index:",
+                                 choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                                 selected = "StringencyIndex"
+                               ),
+                               
+                               p("The first visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
+                       Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
+                       be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above."),
                                plotOutput("indexStackedPlot",
                                           height = "640px"),
                                p("Source: Oxford Covid-19 Government Response Tracker", align = "center"),
-                               plotOutput("indexStatePlot")
+                               br(),
+                               selectInput(
+                                 "stateIndexRepresentation",
+                                 label = h5("Select State:"),
+                                 multiple = FALSE,
+                                 choices = c(lowDensityStates, 
+                                             mediumDensityStates,
+                                             highDensityStates),
+                                 selected = "Alaska"
+                               ),
+                               plotOutput("indexStatePlot",
+                                          height = "640px"),
+                               br(),
+                               br()
                                )
                      ),
             
@@ -265,10 +289,10 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      sidebarPanel(
                        
                        # Select input for switch
-                       p("Color / Numeric View:"),
+                       p("P-Value / Correlation Value Toggle:"),
                        switchInput(inputId = "colorDisplay",
-                                   onLabel = "Color",
-                                   offLabel = "Numeric"),
+                                   onLabel = "p-Value",
+                                   offLabel = "r-Value"),
                        
                        # Select state for input
                        selectInput(inputId = "stateForMatrix",
@@ -283,8 +307,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                      mainPanel(h3("Correlation Matrix"),
                                plotOutput("stateMatrixPlot",
                                           width = "640",
-                                          height = "640"),
-                               p("Note: * - p < 0.05; ** - p < 0.01; *** - p < 0.001")
+                                          height = "640")
                        
                      )
                      ),
