@@ -100,7 +100,7 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                      across the period of data collection. Users
                      may select from the states and the computed 
                      OxCGRT indeces (range 0-100)."),
-                   p("Description of the Policy Indeces (**Rewrite descriptions):"),
+                   p("Description of the Policy Indeces:"),
                    em("1. StringencyIndex:"),
                    p("Documents the severity of closure and containment measures implemented
                      that restricted population movement and behavior."),
@@ -276,6 +276,8 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                                              highDensityStates),
                                  selected = "Alaska"
                                ),
+                               p("The second visualization provides a state-specific summary of the 4 OxCGRT policy indeces (range 0-100)
+                               across the data collection period. Users may select the state to be visualized with the dropdown above."),
                                plotOutput("indexStatePlot",
                                           height = "640px"),
                                br(),

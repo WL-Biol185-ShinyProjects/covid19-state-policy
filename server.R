@@ -350,7 +350,7 @@ function(input, output, session) {
             axis.text=element_text(size=12),
             axis.title = element_text(size=16),
             legend.text = element_text(size=14),
-            title = element_text(size = 18),
+            title = element_text(size = 24),
             legend.title = element_text(size = 16))
   })
   
