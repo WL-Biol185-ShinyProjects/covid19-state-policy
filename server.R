@@ -314,8 +314,13 @@ function(input, output, session) {
                                    as.character(input$stateMeasureRepresentation), 
                                    "(Source: OxCRGT)")
     
-    # Collapse Table on Policy Measure Duration > 2 
+    # Filter for selected Date
     
+    detailedPolicyData <- detailedPolicyData %>%
+      filter(Date <= '2022-12-31' & Date >= '2020-04-13')
+    
+    # Collapse Table on Policy Measure Duration > 2 
+  
     policyMeasureDuration <-  detailedPolicyData %>%
       group_by(State) %>%
       summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$stateMeasureRepresentation) > 2, na.rm = TRUE)) %>%
@@ -339,16 +344,19 @@ function(input, output, session) {
     # Reorder States by State Vector
     detailedPolicyData$State <- factor(detailedPolicyData$State, levels = stateVector)
     
+    # Convert to factor
+    detailedPolicyData$stateMeasureFactor <- factor(detailedPolicyData[[input$stateMeasureRepresentation]])
+    
+    # Convert to Date type
+    detailedPolicyData$Date <- as.Date(detailedPolicyData$Date)
+    
     # Plot output
     ggplot(detailedPolicyData, aes_string(x = "Date",
                  y = "State",
-                 fill = input$stateMeasureRepresentation)
-                   # cut(.data[[input$stateMeasureRepresentation]]),
-                   #          breaks = indexBreaks,
-                   #          labels = indexLabels)
+                 fill = "stateMeasureFactor")
            ) +
       geom_tile()+
-      scale_fill_continuous(na.value = "white")+
+      scale_fill_manual(values = color_scale, na.value = "white")+
       ggtitle(indexStackedPlotTitle)+
       labs(x = "Time", 
            y = "States",
@@ -358,40 +366,88 @@ function(input, output, session) {
             axis.title = element_text(size=16),
             legend.text = element_text(size=14),
             title = element_text(size = 24),
-            legend.title = element_text(size = 16))
+            legend.title = element_text(size = 16))+
+      scale_x_date(date_labels="%b %d %Y", 
+                   breaks = as.Date(c("2020-04-13", 
+                                      "2021-01-01", 
+                                      "2022-01-01",
+                                      "2022-12-31")))
   })
   
-  # output$indexStatePlot <- renderPlot({
-  #   
-  #   # Plot Title
-  #   indexStatePlotTitle <- paste("Index Averages for", 
-  #                                  as.character(input$stateIndexRepresentation))
-  #   
-  #   # Filter by State
-  #   filteredData <- policyData %>%
-  #     filter(Province_State == input$stateIndexRepresentation) %>%
-  #     filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13') %>%
-  #     select(c("Converted_Date", "StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"))
-  #   
-  #   filteredDataMelted <- melt(filteredData,  id.vars = 'Converted_Date', variable.name = 'indeces')
-  #   
-  #   
-  #   # Plot output
-  #   ggplot(filteredDataMelted, aes(x = Converted_Date,
-  #                          y = value))+
-  #     geom_line(aes(color = indeces))+
-  #     ylim(0,100)+
-  #     labs(title = indexStatePlotTitle,
-  #          x = "Time",
-  #          y = "Index",
-  #          color = "Index Type")+
-  #     theme(axis.text=element_text(size=12),
-  #           axis.title = element_text(size=16),
-  #           title = element_text(size = 18),
-  #           legend.text = element_text(size=14)
-  #           )
-
-  # })
+  output$policyMeasureStatePlot <- renderPlot({
+    
+    # Plot Title
+    indexStackedPlotTitle <- paste("Time Period", input$stateCompare, "spent under Specific Policy Measures", 
+                                   "(Source: OxCRGT)")
+    
+    # Filter for selected Date
+    
+    detailedPolicyData <- detailedPolicyData %>%
+      filter(Date <= '2022-12-31' & Date >= '2020-04-13') %>%
+      filter(State == input$stateCompare) %>%
+      select(c("Date", 
+               "C1M_School.closing", 
+               "C2M_Workplace.closing", 
+               "C3M_Cancel.public.events", 
+               "C4M_Restrictions.on.gatherings",
+               "C5M_Close.public.transport",
+               "C6M_Stay.at.home.requirements",
+               "C7M_Restrictions.on.internal.movement",
+               "C8EV_International.travel.controls",
+               "E1_Income.support",
+               "E2_Debt.contract.relief",
+               "H1_Public.information.campaigns",
+               "H2_Testing.policy",
+               "H3_Contact.tracing",
+               "H6M_Facial.Coverings",
+               "H7_Vaccination.policy",
+               "H8M_Protection.of.elderly.people"))
+    
+    # Convert to Date type
+    detailedPolicyData$Date <- as.Date(detailedPolicyData$Date)
+    
+    # Melt the data
+    detailedPolicyDataMelted <- melt(detailedPolicyData,  id.vars = 'Date', variable.name = 'measures')
+    
+    
+    # Color scale for index levels
+    color_scale <- c("0" = "#fcfdbf", 
+                     "1" = "#fe9f6d", 
+                     "2" = "#de4968", 
+                     "3" = "#8c2981", 
+                     "4" = "#3b0f70",
+                     "5" = "#000004")
+    
+    # Breaks and labels for legend
+    indexBreaks <- c(0, 1, 2, 3, 4, 5)
+    indexLabels <- c("[0, 1)", "[1, 2)", "[2, 3)", "[3, 4)", "[4, 5)")
+    
+    # Convert to factor
+    detailedPolicyDataMelted$value <- as.factor(detailedPolicyDataMelted$value)
+    
+    # Plot output
+    ggplot(detailedPolicyDataMelted, aes(x = Date,
+                                          y = measures,
+                                         fill = value)
+    ) +
+      geom_tile()+
+      scale_fill_manual(values = color_scale, na.value = "white")+
+      ggtitle(indexStackedPlotTitle)+
+      labs(x = "Time", 
+           y = "States",
+           fill= paste(as.character(input$stateMeasureRepresentation)))+
+      theme(plot.title = element_text(hjust = 0.5, size = 18),
+            axis.text=element_text(size=12),
+            axis.title = element_text(size=16),
+            legend.text = element_text(size=14),
+            title = element_text(size = 24),
+            legend.title = element_text(size = 16))+
+      scale_x_date(date_labels="%b %d %Y", 
+                   breaks = as.Date(c("2020-04-13", 
+                                      "2021-01-01", 
+                                      "2022-01-01",
+                                      "2022-12-31")))
+  })
   
   ## TAB 4 [Policy Response - Summary] ###########################################
   
