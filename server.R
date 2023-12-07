@@ -15,6 +15,9 @@ policyData$Converted_Date <- as.Date(policyData$Converted_Date)
 file2 <- "Data/state-population-density-data.csv"
 densityData <- read.csv(file2)
 
+file3 <- "Data/OxCGRT_USA_detailed_policy_tidy.csv"
+detailedPolicyData <- read.csv(file3)
+
 
 function(input, output, session) {
   
@@ -304,7 +307,7 @@ function(input, output, session) {
   
   ## TAB 3 [Policy Response - Detailed] ###########################################
   
-  output$indexStackedPlot <- renderPlot({
+  output$policyMeasureStackedPlot <- renderPlot({
     
     # Plot Title
     indexStackedPlotTitle <- paste("Time Periods States spent under", 
@@ -313,9 +316,9 @@ function(input, output, session) {
     
     # Collapse Table on Index Duration > 60 
     
-    indexDuration <- policyData %>%
-      group_by(Province_State) %>%
-      summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
+    policyMeasureDuration <-  detailedPolicyData %>%
+      group_by(State) %>%
+      summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
       arrange(desc(indexDurationVector))
     
     # Obtain Duration Vector
@@ -355,37 +358,37 @@ function(input, output, session) {
             legend.title = element_text(size = 16))
   })
   
-  output$indexStatePlot <- renderPlot({
-    
-    # Plot Title
-    indexStatePlotTitle <- paste("Index Averages for", 
-                                   as.character(input$stateIndexRepresentation))
-    
-    # Filter by State
-    filteredData <- policyData %>%
-      filter(Province_State == input$stateIndexRepresentation) %>%
-      filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13') %>%
-      select(c("Converted_Date", "StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"))
-    
-    filteredDataMelted <- melt(filteredData,  id.vars = 'Converted_Date', variable.name = 'indeces')
-    
-    
-    # Plot output
-    ggplot(filteredDataMelted, aes(x = Converted_Date,
-                           y = value))+
-      geom_line(aes(color = indeces))+
-      ylim(0,100)+
-      labs(title = indexStatePlotTitle,
-           x = "Time",
-           y = "Index",
-           color = "Index Type")+
-      theme(axis.text=element_text(size=12),
-            axis.title = element_text(size=16),
-            title = element_text(size = 18),
-            legend.text = element_text(size=14)
-            )
+  # output$indexStatePlot <- renderPlot({
+  #   
+  #   # Plot Title
+  #   indexStatePlotTitle <- paste("Index Averages for", 
+  #                                  as.character(input$stateIndexRepresentation))
+  #   
+  #   # Filter by State
+  #   filteredData <- policyData %>%
+  #     filter(Province_State == input$stateIndexRepresentation) %>%
+  #     filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13') %>%
+  #     select(c("Converted_Date", "StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"))
+  #   
+  #   filteredDataMelted <- melt(filteredData,  id.vars = 'Converted_Date', variable.name = 'indeces')
+  #   
+  #   
+  #   # Plot output
+  #   ggplot(filteredDataMelted, aes(x = Converted_Date,
+  #                          y = value))+
+  #     geom_line(aes(color = indeces))+
+  #     ylim(0,100)+
+  #     labs(title = indexStatePlotTitle,
+  #          x = "Time",
+  #          y = "Index",
+  #          color = "Index Type")+
+  #     theme(axis.text=element_text(size=12),
+  #           axis.title = element_text(size=16),
+  #           title = element_text(size = 18),
+  #           legend.text = element_text(size=14)
+  #           )
 
-  })
+  # })
   
   ## TAB 4 [Policy Response - Summary] ###########################################
   
