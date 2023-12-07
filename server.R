@@ -311,7 +311,7 @@ function(input, output, session) {
     
     # Plot Title
     indexStackedPlotTitle <- paste("Time Periods States spent under", 
-                                   as.character(input$StackedIndex), 
+                                   as.character(input$stateMeasureRepresentation), 
                                    "(Source: OxCRGT)")
     
     # Collapse Table on Policy Measure Duration > 2 
@@ -334,23 +334,25 @@ function(input, output, session) {
     
     # Breaks and labels for legend
     indexBreaks <- c(0, 1, 2, 3, 4, 5)
-    indexLabels <- c("0", "1", "2", "3", "4", "5")
+    indexLabels <- c("[0, 1)", "[1, 2)", "[2, 3)", "[3, 4)", "[4, 5)")
     
     # Reorder States by State Vector
-    policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
+    detailedPolicyData$State <- factor(detailedPolicyData$State, levels = stateVector)
     
     # Plot output
-    ggplot(policyData, aes(x = Converted_Date,
-                 y = Province_State,
-                 fill = cut(.data[[input$StackedIndex]],
-                            breaks = indexBreaks,
-                            labels = indexLabels))) +
+    ggplot(detailedPolicyData, aes_string(x = "Date",
+                 y = "State",
+                 fill = input$stateMeasureRepresentation)
+                   # cut(.data[[input$stateMeasureRepresentation]]),
+                   #          breaks = indexBreaks,
+                   #          labels = indexLabels)
+           ) +
       geom_tile()+
-      scale_fill_manual(values = color_scale, na.value = "white")+
+      scale_fill_continuous(na.value = "white")+
       ggtitle(indexStackedPlotTitle)+
       labs(x = "Time", 
            y = "States",
-           fill= paste(as.character(input$StackedIndex)))+
+           fill= paste(as.character(input$stateMeasureRepresentation)))+
       theme(plot.title = element_text(hjust = 0.5, size = 18),
             axis.text=element_text(size=12),
             axis.title = element_text(size=16),
@@ -477,7 +479,7 @@ function(input, output, session) {
   })
   
   
-  ## TAB 4 [Correlation Matrix] ###########################################
+  ## TAB 5 [Correlation Matrix] ###########################################
   
   output$stateMatrixPlot <- renderPlot({
     
@@ -546,7 +548,7 @@ function(input, output, session) {
     
   })
   
-  ## TAB 5 [Linear Regression] ###########################################
+  ## TAB 6 [Linear Regression] ###########################################
   
   output$prediction <- renderPrint({
     
