@@ -326,11 +326,11 @@ function(input, output, session) {
     
     # Color scale for index levels
     color_scale <- c("0" = "#fcfdbf", 
-                     "1" = "#fc8961", 
-                     "2" = "#b73779", 
-                     "3" = "#51127c", 
-                     "4" = "#000004",
-                     "5" = "")
+                     "1" = "#fe9f6d", 
+                     "2" = "#de4968", 
+                     "3" = "#8c2981", 
+                     "4" = "#3b0f70",
+                     "5" = "#000004")
     
     # Breaks and labels for legend
     indexBreaks <- c(0, 1, 2, 3, 4, 5)
