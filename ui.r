@@ -3,7 +3,9 @@ library(shinyWidgets)
 library(shinythemes)
 
 file <- "Data/covid19_state_policy_tidydata.csv"
+file2 <- "Data/OxCGRT_USA_detailed_policy_tidy.csv"
 policyData <- read.csv(file)
+detailedPolicyData <- read.csv(file2)
 
 lowDensityStates <- c(
   'Alaska',
@@ -220,36 +222,39 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                          )
                        )
                      ),
-            
-            tabPanel("Policy Response Summary",
+            tabPanel("Policy Response - Detailed",
+                     mainPanel(h3("Policy Response - Detailed"),
+                               # Select variable for y-axis
+                               selectInput(
+                                 inputId = "stateCompare",
+                                 label = "State:",
+                                 choices = c(lowDensityStates, mediumDensityStates, highDensityStates),
+                                 selected = "Alaska"
+                               ),
+                               
+                               p(""),
+                               plotOutput("policyMeasureStackedPlot",
+                                          height = "640px"),
+                               p("Source: Oxford Covid-19 Government Response Tracker", align = "center"),
+                               br(),
+                               selectInput(
+                                 "stateMeasureRepresentation",
+                                 label = h5("Select Policy Measure:"),
+                                 multiple = FALSE,
+                                 choices = c(colnames(detailedPolicyData)[4:19]),
+                                 selected = "C1M_School.closing"
+                               ),
+                               p(""),
+                               plotOutput("policyMeasureStatePlot",
+                                          height = "640px"),
+                               br(),
+                               br()
+                     )
                      
-                     # Inputs: Select variables to plot
-                     # sidebarPanel(
-                     #   
-                     #   # Select variable for y-axis
-                     #   selectInput(
-                     #     inputId = "StackedIndex",
-                     #     label = "Index:",
-                     #     choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-                     #     selected = "StringencyIndex"
-                     #   ),
-                     #   selectInput(
-                     #     "stateIndexRepresentation",
-                     #     label = h5("Select State:"),
-                     #     multiple = FALSE,
-                     #     choices = c(lowDensityStates, 
-                     #                 mediumDensityStates,
-                     #                 highDensityStates
-                     #     ),
-                     #     selected = "Alaska"
-                     #     ),
-                     #   
-                     #   p("The first visualization ranks US states by the duration of time spent at > 60 for a given OxCGRT policy index (range 0-100).
-                     #   Thus, states at the top of the table may be considered 'Most Restrictive', while states towards the bottom may
-                     #   be considered 'Least Restrictive' in policy response. Users may toggle between the four policy indeces above.")
-                     #   ),
-                     # 
-                     # 
+            ),
+            
+            tabPanel("Policy Response - Summary",
+               
                      # Output: Show plots
                      mainPanel(h3("Policy Response Summary"),
                                # Select variable for y-axis

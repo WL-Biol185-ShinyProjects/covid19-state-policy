@@ -311,7 +311,8 @@ function(input, output, session) {
                                    as.character(input$StackedIndex), 
                                    "(Source: OxCRGT)")
     
-    # Collapse Table on Index Duration > 60
+    # Collapse Table on Index Duration > 60 
+    
     indexDuration <- policyData %>%
       group_by(Province_State) %>%
       summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
@@ -321,7 +322,7 @@ function(input, output, session) {
     stateVector <- indexDuration$Province_State
     
     # Color scale for index levels
-    color_scale <- c("<20" = "#fcfdbf", 
+    color_scale <- c("0-20" = "#fcfdbf", 
                      "20-40" = "#fc8961", 
                      "40-60" = "#b73779", 
                      "60-80" = "#51127c", 
@@ -329,7 +330,7 @@ function(input, output, session) {
     
     # Breaks and labels for legend
     indexBreaks <- c(0, 20, 40, 60, 80, 100)
-    indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
+    indexLabels <- c("0-20", "20-40", "40-60", "60-80", "80-100")
     
     # Reorder States by State Vector
     policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
@@ -394,28 +395,28 @@ function(input, output, session) {
     stateMatrixPlotTitle <- paste(as.character(input$stateForMatrix), 
                                    "Correlation Matrix")
     
-    # Collapse Table on Index Duration > 60
-    indexDuration <- policyData %>%
-      group_by(Province_State) %>%
-      summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
-      arrange(desc(indexDurationVector))
-    
-    # Obtain Duration Vector
-    stateVector <- indexDuration$Province_State
-    
-    # Color scale for index levels
-    color_scale <- c("<20" = "#fcfdbf", 
-                     "20-40" = "#fc8961", 
-                     "40-60" = "#b73779", 
-                     "60-80" = "#51127c", 
-                     "80-100" = "#000004")
-    
-    # Breaks and labels for legend
-    indexBreaks <- c(0, 20, 40, 60, 80, 100)
-    indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
-    
-    # Reorder States by State Vector
-    policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
+    # # Collapse Table on Index Duration > 60
+    # indexDuration <- policyData %>%
+    #   group_by(Province_State) %>%
+    #   summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
+    #   arrange(desc(indexDurationVector))
+    # 
+    # # Obtain Duration Vector
+    # stateVector <- indexDuration$Province_State
+    # 
+    # # Color scale for index levels
+    # color_scale <- c("<20" = "#fcfdbf", 
+    #                  "20-40" = "#fc8961", 
+    #                  "40-60" = "#b73779", 
+    #                  "60-80" = "#51127c", 
+    #                  "80-100" = "#000004")
+    # 
+    # # Breaks and labels for legend
+    # indexBreaks <- c(0, 20, 40, 60, 80, 100)
+    # indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
+    # 
+    # # Reorder States by State Vector
+    # policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
     
     # Plot output
     
@@ -441,7 +442,6 @@ function(input, output, session) {
                tl.col = 'black',
                diag = FALSE) # numeric
       } else {
-      # If the switch is OFF, don't render the plot
         corrplot(M, 
                  p.mat = testRes$p,
                  method = 'color',
@@ -458,33 +458,10 @@ function(input, output, session) {
   
   ## TAB 5 [Linear Regression] ###########################################
   
-  # output$prediction <- renderPrint({
-  #   
-  #   filteredData <- policyData %>%
-  #     filter(Province_State == input$predictorState)
-  #   
-  #   # Obtain inputted predictive variables
-  #   varPredict <- c(input$predictors)
-  #   
-  #   # Develop linear model
-  #   lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-  #   multiRegression <- lm(lmformula, data = filteredData)
-  #   summary(multiRegression)
-  # })
-  
   output$prediction <- renderPrint({
     
     filteredData <- policyData %>%
-      # filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
-
-    # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-    # 
-    # TrainingData <- filteredData %>%
-    #   slice(1:numRowsToKeep)
-    # 
-    # TestData <- filteredData %>%
-    #   slice(numRowsToKeep:nrow(filteredData))
 
     # Obtain inputted predictive variables
     varPredict <- c(input$predictors)
@@ -492,7 +469,6 @@ function(input, output, session) {
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
     multiRegression <- lm(lmformula, data = filteredData)
-    # predictedValues <- predict(multiRegression, newdata = TestData, interval = 'confidence')
     summary(multiRegression)
   })
   
@@ -503,41 +479,14 @@ function(input, output, session) {
     
     # Filter Data based on State and Date
     filteredData <- policyData %>%
-      # filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
     
     filteredData[filteredData == 0] <- NA
-    
-    # # Create Time Slices for LM Model
-    # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-    # 
-    # timeSlices <- createTimeSlices(filteredData$Converted_Date,
-    #                           initialWindow = numRowsToKeep,
-    #                           horizon = nrow(filteredData) - numRowsToKeep)
-    # 
-    # # Create Training Data and Test Data
-    # trainingIndex <- timeSlices$train[[1]]
-    # testingIndex <- timeSlices$test[[1]]
-    # 
-    # trainingData <- filteredData[trainingIndex,]
-    # testingData <- filteredData[testingIndex,]
-    
-    # # Setting up trainControl for time series cross-validation
-    # ctrl <- trainControl(method = "timeslice", index = timeSlices)
-    # 
-    # 
-    # # Creating the lm model
-    # lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    # multiRegression <- train(lmformula, data = trainingData, method = "lm", na.action = na.pass)
-    # 
-    # predictedValues <- predict(multiRegression, newdata = testingData)
+
     
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
     multiRegression <- lm(lmformula, data = filteredData, na.action=na.omit)
-    # predictedValues <- predict(multiRegression, newdata = testingData)
-    
-    # , interval = 'confidence')
 
     ggplot(data = filteredData,
            aes_string(x = input$predictors,
@@ -552,9 +501,6 @@ function(input, output, session) {
            y = paste(input$predictOutput),
            title = paste(input$predictors,"vs", input$predictOutput),
            color = "State")
-    
-    # par(mfrow=c(2,2))
-    # plot(multiRegression)
 
   })
   
