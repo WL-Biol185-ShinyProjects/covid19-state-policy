@@ -314,26 +314,27 @@ function(input, output, session) {
                                    as.character(input$StackedIndex), 
                                    "(Source: OxCRGT)")
     
-    # Collapse Table on Index Duration > 60 
+    # Collapse Table on Policy Measure Duration > 2 
     
     policyMeasureDuration <-  detailedPolicyData %>%
       group_by(State) %>%
-      summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
-      arrange(desc(indexDurationVector))
+      summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$stateMeasureRepresentation) > 2, na.rm = TRUE)) %>%
+      arrange(desc(policyMeasureDurationVector))
     
     # Obtain Duration Vector
-    stateVector <- indexDuration$Province_State
+    stateVector <- policyMeasureDuration$State
     
     # Color scale for index levels
-    color_scale <- c("0-20" = "#fcfdbf", 
-                     "20-40" = "#fc8961", 
-                     "40-60" = "#b73779", 
-                     "60-80" = "#51127c", 
-                     "80-100" = "#000004")
+    color_scale <- c("0" = "#fcfdbf", 
+                     "1" = "#fc8961", 
+                     "2" = "#b73779", 
+                     "3" = "#51127c", 
+                     "4" = "#000004",
+                     "5" = "")
     
     # Breaks and labels for legend
-    indexBreaks <- c(0, 20, 40, 60, 80, 100)
-    indexLabels <- c("0-20", "20-40", "40-60", "60-80", "80-100")
+    indexBreaks <- c(0, 1, 2, 3, 4, 5)
+    indexLabels <- c("0", "1", "2", "3", "4", "5")
     
     # Reorder States by State Vector
     policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)

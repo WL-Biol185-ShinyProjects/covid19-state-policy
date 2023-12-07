@@ -226,10 +226,11 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                      mainPanel(h3("Policy Response - Detailed"),
                                # Select variable for y-axis
                                selectInput(
-                                 inputId = "stateCompare",
-                                 label = "State:",
-                                 choices = c(lowDensityStates, mediumDensityStates, highDensityStates),
-                                 selected = "Alaska"
+                                 "stateMeasureRepresentation",
+                                 label = h5("Select Policy Measure:"),
+                                 multiple = FALSE,
+                                 choices = c(colnames(detailedPolicyData)[4:19]),
+                                 selected = "C1M_School.closing"
                                ),
                                
                                p(""),
@@ -238,11 +239,10 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                                p("Source: Oxford Covid-19 Government Response Tracker", align = "center"),
                                br(),
                                selectInput(
-                                 "stateMeasureRepresentation",
-                                 label = h5("Select Policy Measure:"),
-                                 multiple = FALSE,
-                                 choices = c(colnames(detailedPolicyData)[4:19]),
-                                 selected = "C1M_School.closing"
+                                 inputId = "stateCompare",
+                                 label = "State:",
+                                 choices = c(lowDensityStates, mediumDensityStates, highDensityStates),
+                                 selected = "Alaska"
                                ),
                                p(""),
                                plotOutput("policyMeasureStatePlot",
