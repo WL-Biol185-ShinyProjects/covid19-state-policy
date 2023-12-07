@@ -302,7 +302,7 @@ function(input, output, session) {
       )
   })
   
-  ## TAB 3 [Policy Response Summary] ###########################################
+  ## TAB 3 [Policy Response - Detailed] ###########################################
   
   output$indexStackedPlot <- renderPlot({
     
@@ -387,7 +387,7 @@ function(input, output, session) {
 
   })
   
-  ## TAB 3 [Policy Response Summary] ###########################################
+  ## TAB 4 [Policy Response - Summary] ###########################################
   
   output$indexStackedPlot <- renderPlot({
     
