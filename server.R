@@ -332,7 +332,7 @@ function(input, output, session) {
   
     policyMeasureDuration <-  detailedPolicyData %>%
       group_by(State) %>%
-      summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$stateMeasureRepresentation) > 2, na.rm = TRUE)) %>%
+      summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$stateMeasureRepresentation) >= 2, na.rm = TRUE)) %>%
       arrange(desc(policyMeasureDurationVector))
     
     # Obtain Duration Vector

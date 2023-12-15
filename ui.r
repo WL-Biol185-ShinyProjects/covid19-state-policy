@@ -245,7 +245,7 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                                  selected = "C1M_School.closing"
                                ),
                                
-                               p("The first visualization ranks US states by the duration of time spent at > 2 for a given OxCGRT policy measure.
+                               p("The first visualization ranks US states by the duration of time spent at >= 2 for a given OxCGRT policy measure.
                        Thus, states at the bottom of the table may be considered 'Most Restrictive', while states towards the top may
                        be considered 'Least Restrictive' in policy response. Users may toggle between the various policy measures above."),
                                
@@ -325,7 +325,8 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                        p("This visualization helps users explore the significance of the relationships
                          between state policy responses and mortality outcomes for the given period
                          of data collection. Correlations were computed by corrplot with an alpha
-                         threshold of 0.05.")
+                         threshold of 0.05."),
+                       p("Note: p-values < 0.01 are reported as 0.")
                        ),
                      mainPanel(h3("Correlation Matrix"),
                                plotOutput("stateMatrixPlot",
