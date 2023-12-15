@@ -11,53 +11,7 @@ library(lubridate)
 ui <- fluidPage(
   
   navbarPage("Covid-19 State Policy App",
-            #  tabPanel(
-            #    "Component 1",
-            #      
-            #      # Inputs: Select variables to plot
-            #      sidebarPanel(
-            #        
-            #        # Select variable for y-axis
-            #        selectInput(
-            #          inputId = "y",
-            #          label = "Y-axis:",
-            #          choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
-            #          selected = "StringencyIndex"
-            #        ),
-            #        # Select variable for x-axis
-            #        selectInput(
-            #          inputId = "x",
-            #          label = "X-axis:",
-            #          choices = c("Converted_Date"),
-            #          selected = "Converted_Date"
-            #        ),
-            #        
-            #        # Select State to filter by
-            #        selectInput(
-            #          inputId = "State",
-            #          label = "Province_State:",
-            #          choices = c(unique(policyData$Province_State)),
-            #          selected = "Alabama"
-            #        )
-            #      ),
-            #      
-            #      # Output: Show plots
-            #      mainPanel("Plot",
-            #                 plotOutput("indexPlot"),
-            #                 br(),
-            #                 br(),
-            #                 plotOutput("deathsPlot")
-            #       )
-            #     ),
-            #    
-            # tabPanel("Component 2",
-            #      mainPanel("Plot2",
-            #                plotOutput("DeathsOverTimebyDensity")
-            #     )
-            # ),
-            
-            
-            
+           
             tabPanel("Component 3",
                      #Inputs: Date slider and Index Options
                      sidebarPanel(
@@ -65,7 +19,7 @@ ui <- fluidPage(
                        selectInput(
                          inputId = "selectedIndex",
                          label = "Index: ",
-                         choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                         choices = list("StringencyIndex" = 1, "ContainmentHealthIndex" = 2, "GovernmentResponseIndex" = 3, "EconomicSupportIndex" = 4),
                          selected = "StringencyIndex"
                       ),
                        #Date Slider
@@ -80,7 +34,7 @@ ui <- fluidPage(
                      ),
                      
                      
-                     mainPanel("Plot3",
+                     mainPanel("Spatial Visualization",
                                leafletOutput("deathsMap"),
                                br(),
                                br(),
