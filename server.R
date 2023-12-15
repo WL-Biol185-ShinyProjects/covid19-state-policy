@@ -5,6 +5,13 @@ library(purrr)
 library(corrplot)
 library(caret)
 library(reshape2)
+library(maps)
+library(leaflet)
+library(geojsonio)
+library(shiny)
+library(readr)
+library(dplyr)
+library(RColorBrewer)
 
 
 # Define server 
@@ -17,6 +24,8 @@ densityData <- read.csv(file2)
 
 file3 <- "Data/OxCGRT_USA_detailed_policy_tidy.csv"
 detailedPolicyData <- read.csv(file3)
+
+geo <- geojson_read("Data/states.geo.json", what = "sp")
 
 
 function(input, output, session) {
@@ -650,6 +659,88 @@ function(input, output, session) {
            title = paste(input$predictors,"vs", input$predictOutput),
            color = "State")
 
+  })
+  
+  
+  ## TAB 7 [Chloropleth] ###########################################
+  
+  # Reactive expression for the data subsetted to what the user selected
+  
+  deathsGeo <- geo
+  indexGeo <- geo
+  
+  
+  
+  bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+  deathsPal <- colorNumeric(palette = "YlOrRd", domain = min(policyData$dailyDeaths) : max(policyData$dailyDeaths), na.color = "white")
+  indexPal <- colorNumeric(palette = "YlOrRd", domain = 0:100, na.color = "white")
+  
+  
+  
+  #observer block updating spatial file for deaths map with data for selected day on input slider
+  
+  observe({
+    dayDeathsData <- filter(policyData[,c("Province_State", "dailyDeaths", "Converted_Date")]
+                            , input$selectedDay == policyData$Converted_Date) 
+    dayDeathsData$NAME <- dayDeathsData$Province_State      #matches name of state column in geo@data
+    
+    
+    deathsGeo@data <- left_join(geo@data, dayDeathsData, by = "NAME")
+    
+  })
+  
+  #observer block updating spatial file for index map with data for selected day on input slider
+  
+  observe({
+    dayIndexData <- filter(policyData[,c("Province_State", input$selectedIndex, "Converted_Date")]
+                           , input$selectedDay == policyData$Converted_Date)
+    
+    
+    
+    dayIndexData$NAME <- dayIndexData$Province_State
+    indexGeo@data <- left_join(geo@data, dayIndexData, by = "NAME")
+    
+    
+  })
+  
+  
+  
+  
+  
+  
+  output$deathsMap <- renderLeaflet({
+    leaflet(deathsGeo) %>%
+      addTiles()%>%
+      addPolygons(
+        fillColor = ~deathsPal(deathsGeo@data$dailyDeaths),
+        weight = 2,
+        opacity = 1,
+        color = "gray",
+        dashArray = "3",
+        fillOpacity = 0.7)
+  })
+  
+  
+  
+  observe({
+    leafletProxy("deathsMap", data = deathsGeo@data)
+  })
+  
+  
+  
+  output$indexMap <- renderLeaflet({
+    leaflet(indexGeo) %>%
+      addTiles()%>%
+      addPolygons( #add data argument
+        # fillColor = ~indexPal(output$selectedIndex),
+        weight = 2,
+        opacity = 1,
+        color = "gray",
+        dashArray = "3",
+        fillOpacity = 0.7)
+  })
+  observe({
+    leafletProxy("indexMap", data = indexGeo@data)
   })
   
   

@@ -1,6 +1,10 @@
 library(plotly)
 library(shinyWidgets)
 library(shinythemes)
+library(shiny)
+library(leaflet)
+library(geojsonio)
+library(lubridate)
 
 file <- "Data/covid19_state_policy_tidydata.csv"
 file2 <- "Data/OxCGRT_USA_detailed_policy_tidy.csv"
@@ -364,6 +368,35 @@ ui <- fluidPage(theme = shinytheme("darkly"),
                          verbatimTextOutput("prediction")
                        )
               
-            )
+            ),
+            tabPanel("Chloropleth",
+                     #Inputs: Date slider and Index Options
+                     sidebarPanel(
+                       #Select Index
+                       selectInput(
+                         inputId = "selectedIndex",
+                         label = "Index: ",
+                         choices = c("StringencyIndex", "ContainmentHealthIndex", "GovernmentResponseIndex", "EconomicSupportIndex"),
+                         selected = "StringencyIndex"
+                       ),
+                       #Date Slider
+                       sliderInput(inputId = "selectedDay", label = "Date", min = as.Date("2020-04-12"), max = as.Date("2022-12-31"), value = as.Date("2020-04-12"), step = NULL, round = FALSE,
+                                   ticks = FALSE,
+                                   animate = animationOptions(interval = 400, loop = TRUE, playButton = NULL,
+                                                              pauseButton = NULL),
+                                   width = NULL, sep = ",", pre = NULL, post = NULL, timeFormat = NULL,
+                                   timezone = NULL, dragRange = TRUE)
+                       
+                       
+                     ),
+                     
+                     
+                     mainPanel("Plot3",
+                               leafletOutput("deathsMap"),
+                               br(),
+                               br(),
+                               leafletOutput("indexMap")
+                               )
+                     )
             )
   )
