@@ -15,6 +15,9 @@ policyData$Converted_Date <- as.Date(policyData$Converted_Date)
 file2 <- "Data/state-population-density-data.csv"
 densityData <- read.csv(file2)
 
+file3 <- "Data/OxCGRT_USA_detailed_policy_tidy.csv"
+detailedPolicyData <- read.csv(file3)
+
 
 function(input, output, session) {
   
@@ -302,7 +305,151 @@ function(input, output, session) {
       )
   })
   
-  ## TAB 3 [Policy Response Summary] ###########################################
+  ## TAB 3 [Policy Response - Detailed] ###########################################
+  
+  output$policyMeasureStackedPlot <- renderPlot({
+    
+    # Plot Title
+    indexStackedPlotTitle <- paste("Time Periods States spent under", 
+                                   as.character(input$stateMeasureRepresentation), 
+                                   "(Source: OxCRGT)")
+    
+    # Filter for selected Date
+    
+    detailedPolicyData <- detailedPolicyData %>%
+      filter(Date <= '2022-12-31' & Date >= '2020-04-13')
+    
+    # Collapse Table on Policy Measure Duration > 2 
+  
+    policyMeasureDuration <-  detailedPolicyData %>%
+      group_by(State) %>%
+      summarize(policyMeasureDurationVector = sum(!!rlang::sym(input$stateMeasureRepresentation) > 2, na.rm = TRUE)) %>%
+      arrange(desc(policyMeasureDurationVector))
+    
+    # Obtain Duration Vector
+    stateVector <- policyMeasureDuration$State
+    
+    # Color scale for index levels
+    color_scale <- c("0" = "#fcfdbf", 
+                     "1" = "#fe9f6d", 
+                     "2" = "#de4968", 
+                     "3" = "#8c2981", 
+                     "4" = "#3b0f70",
+                     "5" = "#000004")
+    
+    # Breaks and labels for legend
+    indexBreaks <- c(0, 1, 2, 3, 4, 5)
+    indexLabels <- c("[0, 1)", "[1, 2)", "[2, 3)", "[3, 4)", "[4, 5)")
+    
+    # Reorder States by State Vector
+    detailedPolicyData$State <- factor(detailedPolicyData$State, levels = stateVector)
+    
+    # Convert to factor
+    detailedPolicyData$stateMeasureFactor <- factor(detailedPolicyData[[input$stateMeasureRepresentation]])
+    
+    # Convert to Date type
+    detailedPolicyData$Date <- as.Date(detailedPolicyData$Date)
+    
+    # Plot output
+    ggplot(detailedPolicyData, aes_string(x = "Date",
+                 y = "State",
+                 fill = "stateMeasureFactor")
+           ) +
+      geom_tile()+
+      scale_fill_manual(values = color_scale, na.value = "white")+
+      ggtitle(indexStackedPlotTitle)+
+      labs(x = "Time", 
+           y = "States",
+           fill= paste(as.character(input$stateMeasureRepresentation)))+
+      theme(plot.title = element_text(hjust = 0.5, size = 18),
+            axis.text=element_text(size=12),
+            axis.title = element_text(size=16),
+            legend.text = element_text(size=14),
+            title = element_text(size = 24),
+            legend.title = element_text(size = 16))+
+      scale_x_date(date_labels="%b %d %Y", 
+                   breaks = as.Date(c("2020-04-13", 
+                                      "2021-01-01", 
+                                      "2022-01-01",
+                                      "2022-12-31")))
+  })
+  
+  output$policyMeasureStatePlot <- renderPlot({
+    
+    # Plot Title
+    indexStackedPlotTitle <- paste("Time Period", input$stateCompare, "spent under Specific Policy Measures", 
+                                   "(Source: OxCRGT)")
+    
+    # Filter for selected Date
+    
+    detailedPolicyData <- detailedPolicyData %>%
+      filter(Date <= '2022-12-31' & Date >= '2020-04-13') %>%
+      filter(State == input$stateCompare) %>%
+      select(c("Date", 
+               "C1M_School.closing", 
+               "C2M_Workplace.closing", 
+               "C3M_Cancel.public.events", 
+               "C4M_Restrictions.on.gatherings",
+               "C5M_Close.public.transport",
+               "C6M_Stay.at.home.requirements",
+               "C7M_Restrictions.on.internal.movement",
+               "C8EV_International.travel.controls",
+               "E1_Income.support",
+               "E2_Debt.contract.relief",
+               "H1_Public.information.campaigns",
+               "H2_Testing.policy",
+               "H3_Contact.tracing",
+               "H6M_Facial.Coverings",
+               "H7_Vaccination.policy",
+               "H8M_Protection.of.elderly.people"))
+    
+    # Convert to Date type
+    detailedPolicyData$Date <- as.Date(detailedPolicyData$Date)
+    
+    # Melt the data
+    detailedPolicyDataMelted <- melt(detailedPolicyData,  id.vars = 'Date', variable.name = 'measures')
+    
+    
+    # Color scale for index levels
+    color_scale <- c("0" = "#fcfdbf", 
+                     "1" = "#fe9f6d", 
+                     "2" = "#de4968", 
+                     "3" = "#8c2981", 
+                     "4" = "#3b0f70",
+                     "5" = "#000004")
+    
+    # Breaks and labels for legend
+    indexBreaks <- c(0, 1, 2, 3, 4, 5)
+    indexLabels <- c("[0, 1)", "[1, 2)", "[2, 3)", "[3, 4)", "[4, 5)")
+    
+    # Convert to factor
+    detailedPolicyDataMelted$value <- as.factor(detailedPolicyDataMelted$value)
+    
+    # Plot output
+    ggplot(detailedPolicyDataMelted, aes(x = Date,
+                                          y = measures,
+                                         fill = value)
+    ) +
+      geom_tile()+
+      scale_fill_manual(values = color_scale, na.value = "white")+
+      ggtitle(indexStackedPlotTitle)+
+      labs(x = "Time", 
+           y = "States",
+           fill= paste(as.character(input$stateMeasureRepresentation)))+
+      theme(plot.title = element_text(hjust = 0.5, size = 18),
+            axis.text=element_text(size=12),
+            axis.title = element_text(size=16),
+            legend.text = element_text(size=14),
+            title = element_text(size = 24),
+            legend.title = element_text(size = 16))+
+      scale_x_date(date_labels="%b %d %Y", 
+                   breaks = as.Date(c("2020-04-13", 
+                                      "2021-01-01", 
+                                      "2022-01-01",
+                                      "2022-12-31")))
+  })
+  
+  ## TAB 4 [Policy Response - Summary] ###########################################
   
   output$indexStackedPlot <- renderPlot({
     
@@ -311,7 +458,8 @@ function(input, output, session) {
                                    as.character(input$StackedIndex), 
                                    "(Source: OxCRGT)")
     
-    # Collapse Table on Index Duration > 60
+    # Collapse Table on Index Duration > 60 
+    
     indexDuration <- policyData %>%
       group_by(Province_State) %>%
       summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
@@ -321,7 +469,7 @@ function(input, output, session) {
     stateVector <- indexDuration$Province_State
     
     # Color scale for index levels
-    color_scale <- c("<20" = "#fcfdbf", 
+    color_scale <- c("0-20" = "#fcfdbf", 
                      "20-40" = "#fc8961", 
                      "40-60" = "#b73779", 
                      "60-80" = "#51127c", 
@@ -329,17 +477,17 @@ function(input, output, session) {
     
     # Breaks and labels for legend
     indexBreaks <- c(0, 20, 40, 60, 80, 100)
-    indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
+    indexLabels <- c("0-20", "20-40", "40-60", "60-80", "80-100")
     
     # Reorder States by State Vector
     policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
     
     # Plot output
     ggplot(policyData, aes(x = Converted_Date,
-                 y = Province_State,
-                 fill = cut(.data[[input$StackedIndex]],
-                            breaks = indexBreaks,
-                            labels = indexLabels))) +
+                           y = Province_State,
+                           fill = cut(.data[[input$StackedIndex]],
+                                      breaks = indexBreaks,
+                                      labels = indexLabels))) +
       geom_tile()+
       scale_fill_manual(values = color_scale, na.value = "white")+
       ggtitle(indexStackedPlotTitle)+
@@ -358,7 +506,7 @@ function(input, output, session) {
     
     # Plot Title
     indexStatePlotTitle <- paste("Index Averages for", 
-                                   as.character(input$stateIndexRepresentation))
+                                 as.character(input$stateIndexRepresentation))
     
     # Filter by State
     filteredData <- policyData %>%
@@ -371,7 +519,7 @@ function(input, output, session) {
     
     # Plot output
     ggplot(filteredDataMelted, aes(x = Converted_Date,
-                           y = value))+
+                                   y = value))+
       geom_line(aes(color = indeces))+
       ylim(0,100)+
       labs(title = indexStatePlotTitle,
@@ -382,11 +530,12 @@ function(input, output, session) {
             axis.title = element_text(size=16),
             title = element_text(size = 18),
             legend.text = element_text(size=14)
-            )
-
+      )
+    
   })
   
-  ## TAB 4 [Correlation Matrix] ###########################################
+  
+  ## TAB 5 [Correlation Matrix] ###########################################
   
   output$stateMatrixPlot <- renderPlot({
     
@@ -394,28 +543,28 @@ function(input, output, session) {
     stateMatrixPlotTitle <- paste(as.character(input$stateForMatrix), 
                                    "Correlation Matrix")
     
-    # Collapse Table on Index Duration > 60
-    indexDuration <- policyData %>%
-      group_by(Province_State) %>%
-      summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
-      arrange(desc(indexDurationVector))
-    
-    # Obtain Duration Vector
-    stateVector <- indexDuration$Province_State
-    
-    # Color scale for index levels
-    color_scale <- c("<20" = "#fcfdbf", 
-                     "20-40" = "#fc8961", 
-                     "40-60" = "#b73779", 
-                     "60-80" = "#51127c", 
-                     "80-100" = "#000004")
-    
-    # Breaks and labels for legend
-    indexBreaks <- c(0, 20, 40, 60, 80, 100)
-    indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
-    
-    # Reorder States by State Vector
-    policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
+    # # Collapse Table on Index Duration > 60
+    # indexDuration <- policyData %>%
+    #   group_by(Province_State) %>%
+    #   summarize(indexDurationVector = sum(!!rlang::sym(input$StackedIndex) > 60, na.rm = TRUE)) %>%
+    #   arrange(desc(indexDurationVector))
+    # 
+    # # Obtain Duration Vector
+    # stateVector <- indexDuration$Province_State
+    # 
+    # # Color scale for index levels
+    # color_scale <- c("<20" = "#fcfdbf", 
+    #                  "20-40" = "#fc8961", 
+    #                  "40-60" = "#b73779", 
+    #                  "60-80" = "#51127c", 
+    #                  "80-100" = "#000004")
+    # 
+    # # Breaks and labels for legend
+    # indexBreaks <- c(0, 20, 40, 60, 80, 100)
+    # indexLabels <- c("<20", "20-40", "40-60", "60-80", "80-100")
+    # 
+    # # Reorder States by State Vector
+    # policyData$Province_State <- factor(policyData$Province_State, levels = stateVector)
     
     # Plot output
     
@@ -441,7 +590,6 @@ function(input, output, session) {
                tl.col = 'black',
                diag = FALSE) # numeric
       } else {
-      # If the switch is OFF, don't render the plot
         corrplot(M, 
                  p.mat = testRes$p,
                  method = 'color',
@@ -456,35 +604,12 @@ function(input, output, session) {
     
   })
   
-  ## TAB 5 [Linear Regression] ###########################################
-  
-  # output$prediction <- renderPrint({
-  #   
-  #   filteredData <- policyData %>%
-  #     filter(Province_State == input$predictorState)
-  #   
-  #   # Obtain inputted predictive variables
-  #   varPredict <- c(input$predictors)
-  #   
-  #   # Develop linear model
-  #   lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-  #   multiRegression <- lm(lmformula, data = filteredData)
-  #   summary(multiRegression)
-  # })
+  ## TAB 6 [Linear Regression] ###########################################
   
   output$prediction <- renderPrint({
     
     filteredData <- policyData %>%
-      # filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
-
-    # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-    # 
-    # TrainingData <- filteredData %>%
-    #   slice(1:numRowsToKeep)
-    # 
-    # TestData <- filteredData %>%
-    #   slice(numRowsToKeep:nrow(filteredData))
 
     # Obtain inputted predictive variables
     varPredict <- c(input$predictors)
@@ -492,7 +617,6 @@ function(input, output, session) {
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
     multiRegression <- lm(lmformula, data = filteredData)
-    # predictedValues <- predict(multiRegression, newdata = TestData, interval = 'confidence')
     summary(multiRegression)
   })
   
@@ -503,41 +627,14 @@ function(input, output, session) {
     
     # Filter Data based on State and Date
     filteredData <- policyData %>%
-      # filter(Province_State == input$predictorState) %>%
       filter(Converted_Date <= '2022-12-31' & Converted_Date >= '2020-04-13')
     
     filteredData[filteredData == 0] <- NA
-    
-    # # Create Time Slices for LM Model
-    # numRowsToKeep <- round(nrow(filteredData) * (as.integer(input$Slider1)/100))
-    # 
-    # timeSlices <- createTimeSlices(filteredData$Converted_Date,
-    #                           initialWindow = numRowsToKeep,
-    #                           horizon = nrow(filteredData) - numRowsToKeep)
-    # 
-    # # Create Training Data and Test Data
-    # trainingIndex <- timeSlices$train[[1]]
-    # testingIndex <- timeSlices$test[[1]]
-    # 
-    # trainingData <- filteredData[trainingIndex,]
-    # testingData <- filteredData[testingIndex,]
-    
-    # # Setting up trainControl for time series cross-validation
-    # ctrl <- trainControl(method = "timeslice", index = timeSlices)
-    # 
-    # 
-    # # Creating the lm model
-    # lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
-    # multiRegression <- train(lmformula, data = trainingData, method = "lm", na.action = na.pass)
-    # 
-    # predictedValues <- predict(multiRegression, newdata = testingData)
+
     
     # Develop linear model
     lmformula <- as.formula(paste(input$predictOutput, " ~ ", paste(varPredict, collapse = " + ")))
     multiRegression <- lm(lmformula, data = filteredData, na.action=na.omit)
-    # predictedValues <- predict(multiRegression, newdata = testingData)
-    
-    # , interval = 'confidence')
 
     ggplot(data = filteredData,
            aes_string(x = input$predictors,
@@ -552,9 +649,6 @@ function(input, output, session) {
            y = paste(input$predictOutput),
            title = paste(input$predictors,"vs", input$predictOutput),
            color = "State")
-    
-    # par(mfrow=c(2,2))
-    # plot(multiRegression)
 
   })
   
